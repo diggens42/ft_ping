@@ -2,7 +2,6 @@ CC		=	cc
 CFLAGS	=	-Wall -Wextra -Werror
 # CFLAGS	+=	-Ofast
 # CFLAGS	+=	-fsanitize=address -g
-LDFLAGS	=	-pthread -lm
 RM		=	rm -rf
 
 NAME	=	ft_ping
