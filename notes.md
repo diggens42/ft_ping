@@ -49,7 +49,7 @@ Initial design choices will **significantly impact** future extensibility.
 ### Recommended Architecture:
 
 ```c
-typedef struct s_ping_config {
+typedef struct s_config {
     char            *target;
     struct sockaddr_in dest_addr;
     int             verbose;
@@ -65,7 +65,7 @@ typedef struct s_ping_config {
     int             ttl;           // --ttl
     int             ip_timestamp;  // --ip-timestamp
     // ... other flags
-} t_ping_config;
+} t_config;
 
 typedef struct s_ping_stats {
     int transmitted;

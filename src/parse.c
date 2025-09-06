@@ -6,13 +6,13 @@
 /*   By: fwahl <fwahl@student.42heilbronn.de>       +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/09/06 02:47:36 by fwahl             #+#    #+#             */
-/*   Updated: 2025/09/06 03:42:32 by fwahl            ###   ########.fr       */
+/*   Updated: 2025/09/06 23:11:21 by fwahl            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "../include/ft_ping.h"
 
-static bool parse_verbose(const char *arg, t_ping_conf *conf)
+static bool parse_verbose(const char *arg, t_conf *conf)
 {
     if (ft_strcmp(arg, "-v") == 0)
     {
@@ -23,7 +23,7 @@ static bool parse_verbose(const char *arg, t_ping_conf *conf)
     return (false);
 }
 
-static bool parse_help(const char *arg, t_ping_conf *conf)
+static bool parse_help(const char *arg, t_conf *conf)
 {
     if (ft_strcmp(arg, "-?") == 0 || ft_strcmp(arg, "--help") == 0 || ft_strcmp(arg, "-h") == 0)
     {
@@ -34,12 +34,12 @@ static bool parse_help(const char *arg, t_ping_conf *conf)
     return (false);
 }
 
-static bool parse_flag(const char *arg, t_ping_conf *conf)
+static bool parse_flag(const char *arg, t_conf *conf)
 {
     return (parse_verbose(arg, conf) || parse_help(arg, conf));
 }
 
-static bool parse_target(const char *arg, t_ping_conf *conf)
+static bool parse_target(const char *arg, t_conf *conf)
 {
     if (!conf->tar)
     {
@@ -57,7 +57,7 @@ static bool parse_target(const char *arg, t_ping_conf *conf)
 }
 
 
-bool    parse(int argc, char **argv, t_ping_conf *conf)
+bool    parse(int argc, char **argv, t_conf *conf)
 {
     for (int i = 1; i < argc; i++)
     {

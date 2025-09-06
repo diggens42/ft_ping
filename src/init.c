@@ -6,18 +6,18 @@
 /*   By: fwahl <fwahl@student.42heilbronn.de>       +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/09/06 02:45:46 by fwahl             #+#    #+#             */
-/*   Updated: 2025/09/06 03:05:50 by fwahl            ###   ########.fr       */
+/*   Updated: 2025/09/06 23:11:21 by fwahl            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "../include/ft_ping.h"
 
-static bool    init_conf(t_ping_conf *conf)
+static bool    init_conf(t_conf *conf)
 {
     if (!conf)
         return (false);
     
-    ft_memset(conf, 0, sizeof(t_ping_conf));
+    ft_memset(conf, 0, sizeof(t_conf));
     conf->tar = NULL;
     conf->res_ip = NULL;
     conf->dest.sin_family = AF_UNSPEC; //must set = AF_INET later!!
@@ -33,12 +33,12 @@ static bool    init_conf(t_ping_conf *conf)
     return (true);
 }
 
-static bool    init_status(t_ping_status *status)
+static bool    init_status(t_status *status)
 {
     if (!status)
         return (false);
 
-    ft_memset(status, 0, sizeof(t_ping_status));
+    ft_memset(status, 0, sizeof(t_status));
     status->sent = 0;
     status->recv = 0;
     status->err = 0;
@@ -51,7 +51,7 @@ static bool    init_status(t_ping_status *status)
     return (true);
 }
 
-bool    init(t_ping_conf *conf, t_ping_status *status)
+bool    init(t_conf *conf, t_status *status)
 {
     if (!init_conf(conf))
     {
