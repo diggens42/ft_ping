@@ -6,12 +6,13 @@
 /*   By: fwahl <fwahl@student.42heilbronn.de>       +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/09/06 02:45:39 by fwahl             #+#    #+#             */
-/*   Updated: 2025/09/07 01:07:57 by fwahl            ###   ########.fr       */
+/*   Updated: 2025/09/07 01:45:05 by fwahl            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "../include/ft_ping.h"
 
+volatile sig_atomic_t   g_run = 1;
 
 int main(int argc, char **argv)
 {
@@ -44,8 +45,10 @@ int main(int argc, char **argv)
         //cleanup()
         return (EXIT_FAILURE);
     }
-    // signalhandler
-    // start time
+    
+    init_sig_handlers();
+    gettimeofday(&ping.status.start, NULL);
+
     // ping loop
     // free all
 

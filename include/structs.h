@@ -6,7 +6,7 @@
 /*   By: fwahl <fwahl@student.42heilbronn.de>       +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/09/06 15:05:29 by fwahl             #+#    #+#             */
-/*   Updated: 2025/09/07 00:13:57 by fwahl            ###   ########.fr       */
+/*   Updated: 2025/09/07 01:15:35 by fwahl            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -49,5 +49,4 @@ typedef struct s_ping
 {
     t_conf      conf;
     t_status    status;
-    bool        run;
 }   t_ping;
