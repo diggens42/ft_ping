@@ -101,4 +101,18 @@ If you design with a clean separation of concerns from the start, adding these f
 
 The key is to avoid hardcoding values and to make your packet construction and transmission functions parameter-driven rather than assumption-based.
 
-Would you like me to elaborate on any specific aspect of the implementation?
+### NOTES
+
+ICMP = Internet Control Message Protocol
+It’s a network layer protocol (part of the IP suite, defined in RFC 792).
+Its job is to send control messages and error reporting between devices.
+Unlike TCP or UDP, ICMP is not used to carry "user data," but rather to send information about the health of the network.
+
+
+📦 What’s in a ping packet?
+
+A complete ICMP packet looks like this:
+[ IP header ] + [ ICMP header ] + [ ICMP payload ]
+IP header → 20 bytes (not counted in ping -s size)
+ICMP header → 8 bytes (type, code, checksum, id, seq)
+ICMP payload → variable size (this is what packet_size controls)

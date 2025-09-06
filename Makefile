@@ -19,8 +19,8 @@ BLUE		=	\x1b[34m
 all: $(LIBFT) $(NAME)
 
 $(NAME): $(OBJS) $(HEADERS)
-	@$(CC) $(CFLAGS) $(OBJS) $(LIBFT) $(LDFLAGS) -o $@
-	@echo "$(BLUE) $(CC) $(CFLAGS) $(OBJS) $(LIBFT) $(LDFLAGS) -o $@ $(RESET)"
+	@$(CC) $(CFLAGS) $(OBJS) $(LIBFT) -o $@
+	@echo "$(BLUE) $(CC) $(CFLAGS) $(OBJS) $(LIBFT) -o $@ $(RESET)"
 	@echo "$(YELLOW)Creating executable finished.$(RESET)"
 
 %.o: %.c
