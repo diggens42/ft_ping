@@ -6,7 +6,7 @@
 /*   By: fwahl <fwahl@student.42heilbronn.de>       +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/09/06 02:45:39 by fwahl             #+#    #+#             */
-/*   Updated: 2025/09/07 00:27:12 by fwahl            ###   ########.fr       */
+/*   Updated: 2025/09/07 01:07:57 by fwahl            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -22,14 +22,14 @@ int main(int argc, char **argv)
     
     if (!parse(argc, argv, &ping.conf))
     {
-        //add cleanup function here
+        //cleanup()
         return (EXIT_FAILURE);
     }
 
     if (ping.conf.help)
     {
         print_help();
-        //add  cleanup
+        //cleanup()
         return (EXIT_SUCCESS);
     }
 
@@ -39,7 +39,11 @@ int main(int argc, char **argv)
         return (EXIT_FAILURE);
     }
     
-    // create socket
+    if (!create_socket(&ping.conf.socket_fd))
+    {
+        //cleanup()
+        return (EXIT_FAILURE);
+    }
     // signalhandler
     // start time
     // ping loop
