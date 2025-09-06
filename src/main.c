@@ -27,6 +27,14 @@ int main(int argc, char **argv)
         return (EXIT_FAILURE);
     }
     
+    // help flag function
+    // resolve hostname
+    // create socket
+    // signalhandler
+    // start time
+    // ping loop
+    // free all
+    
 
     return (EXIT_SUCCESS);
 }
