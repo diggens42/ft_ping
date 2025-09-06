@@ -6,7 +6,7 @@
 /*   By: fwahl <fwahl@student.42heilbronn.de>       +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/09/06 02:45:46 by fwahl             #+#    #+#             */
-/*   Updated: 2025/09/06 23:11:21 by fwahl            ###   ########.fr       */
+/*   Updated: 2025/09/07 00:30:23 by fwahl            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -18,8 +18,8 @@ static bool    init_conf(t_conf *conf)
         return (false);
     
     ft_memset(conf, 0, sizeof(t_conf));
+    ft_memset(conf->res_ip, 0, INET_ADDRSTRLEN);
     conf->tar = NULL;
-    conf->res_ip = NULL;
     conf->dest.sin_family = AF_UNSPEC; //must set = AF_INET later!!
     conf->dest.sin_port = 0;
     conf->dest.sin_addr.s_addr = INADDR_ANY; //must set later
@@ -27,8 +27,8 @@ static bool    init_conf(t_conf *conf)
     conf->socket_fd = -1;
     conf->timeout = 1;
     conf->pid = getpid();
-    conf->verbose = 0;
-    conf->help = 0;
+    conf->verbose = false;
+    conf->help = false;
 
     return (true);
 }
@@ -51,15 +51,15 @@ static bool    init_status(t_status *status)
     return (true);
 }
 
-bool    init(t_conf *conf, t_status *status)
+bool    init(t_ping *ping)
 {
-    if (!init_conf(conf))
+    if (!init_conf(&ping->conf))
     {
         ft_error("init: failed to init config struct");
         return (false);
     }
 
-    if (!init_status(status))
+    if (!init_status(&ping->status))
     {
         ft_error("init: failed to init status struct");
         return (false);

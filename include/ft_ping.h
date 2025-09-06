@@ -6,7 +6,7 @@
 /*   By: fwahl <fwahl@student.42heilbronn.de>       +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/09/06 02:45:57 by fwahl             #+#    #+#             */
-/*   Updated: 2025/09/06 23:11:21 by fwahl            ###   ########.fr       */
+/*   Updated: 2025/09/07 00:29:33 by fwahl            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -23,8 +23,9 @@
 
 int main(int argc, char **argv);
 
-bool    init(t_conf *conf, t_status *status);
+bool    init(t_ping *ping);
 bool    parse(int argc, char **argv, t_conf *conf);
+bool	resolve_hostname(t_conf *conf);
 
 void    ft_error(const char *msg);
 void    print_use(const char *exec_name);

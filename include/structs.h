@@ -6,7 +6,7 @@
 /*   By: fwahl <fwahl@student.42heilbronn.de>       +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/09/06 15:05:29 by fwahl             #+#    #+#             */
-/*   Updated: 2025/09/06 23:15:00 by fwahl            ###   ########.fr       */
+/*   Updated: 2025/09/07 00:13:57 by fwahl            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -15,15 +15,15 @@
 
 typedef struct s_conf
 {
-    char                *tar;           // hostname
-    char                *res_ip;        // IP after DNS lookup
-    struct sockaddr_in  dest;           // dest address -->  sendto()
-    int                 packet_size;    // size of ICMP payload in bytes
-    int                 socket_fd;      // raw socket fd
-    int                 timeout;        // timeout for reply (in ms?)
-    bool                verbose;        // -v flag
-    bool                help;           // -? on windows (-h/ --help on linux/macOS) flag
-    pid_t               pid;            // PID for ICMP identifier
+    char                *tar;                   // hostname
+    char                res_ip[INET_ADDRSTRLEN];// IP after DNS lookup
+    struct sockaddr_in  dest;                   // dest address -->  sendto()
+    int                 packet_size;            // size of ICMP payload in bytes
+    int                 socket_fd;              // raw socket fd
+    int                 timeout;                // timeout for reply (in ms?)
+    bool                verbose;                // -v flag
+    bool                help;                   // -? on windows (-h/ --help on linux/macOS) flag
+    pid_t               pid;                    // PID for ICMP identifier
     
 }   t_conf;
 

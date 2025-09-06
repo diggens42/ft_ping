@@ -6,12 +6,16 @@
 /*   By: fwahl <fwahl@student.42heilbronn.de>       +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/09/06 06:51:10 by fwahl             #+#    #+#             */
-/*   Updated: 2025/09/06 06:55:48 by fwahl            ###   ########.fr       */
+/*   Updated: 2025/09/06 23:42:57 by fwahl            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #ifndef HEADERS_H
 # define HEADERS_H
+
+#ifndef _POSIX_C_SOURCE
+# define _POSIX_C_SOURCE 200112L
+#endif
 
 # include <stdio.h>        // printf, fprintf, sprintf, snprintf, perror
 # include <stdlib.h>       // exit, malloc, free
