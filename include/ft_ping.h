@@ -6,7 +6,7 @@
 /*   By: fwahl <fwahl@student.42heilbronn.de>       +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/09/06 02:45:57 by fwahl             #+#    #+#             */
-/*   Updated: 2025/09/06 03:06:22 by fwahl            ###   ########.fr       */
+/*   Updated: 2025/09/06 03:42:10 by fwahl            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -89,7 +89,7 @@ extern int				g_run;
 int main(int argc, char **argv);
 
 bool    init(t_ping_conf *conf, t_ping_status *status);
-
+bool    parse(int argc, char **argv, t_ping_conf *conf);
 
 void    ft_error(const char *msg);
 void    print_use(const char *exec_name);

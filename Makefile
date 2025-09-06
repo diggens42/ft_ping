@@ -5,7 +5,10 @@ CFLAGS	=	-Wall -Wextra -Werror
 RM		=	rm -rf
 
 NAME	=	ft_ping
-SRCS	=	./src/main.c
+SRCS	=	./src/main.c \
+			./src/init.c \
+			./src/parse.c \
+			./src/utils.c
 OBJS	=	$(SRCS:.c=.o)
 HEADERS	=	./include/ft_ping.h
 

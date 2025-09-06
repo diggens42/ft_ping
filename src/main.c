@@ -6,7 +6,7 @@
 /*   By: fwahl <fwahl@student.42heilbronn.de>       +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/09/06 02:45:39 by fwahl             #+#    #+#             */
-/*   Updated: 2025/09/06 03:06:22 by fwahl            ###   ########.fr       */
+/*   Updated: 2025/09/06 03:44:01 by fwahl            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -21,5 +21,12 @@ int main(int argc, char **argv)
     if (!init(&g_conf, &g_status))
         return (EXIT_ERROR);
     
+    if (!parse(argc, argv, &g_conf))
+    {
+        //add cleanup function here
+        return (EXIT_FAILURE);
+    }
     
+
+    return (EXIT_SUCCESS);
 }
