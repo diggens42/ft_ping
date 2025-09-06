@@ -6,7 +6,7 @@
 /*   By: fwahl <fwahl@student.42heilbronn.de>       +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/09/06 02:45:39 by fwahl             #+#    #+#             */
-/*   Updated: 2025/09/06 03:44:01 by fwahl            ###   ########.fr       */
+/*   Updated: 2025/09/06 06:45:05 by fwahl            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -34,7 +34,6 @@ int main(int argc, char **argv)
     // start time
     // ping loop
     // free all
-    
 
     return (EXIT_SUCCESS);
 }
