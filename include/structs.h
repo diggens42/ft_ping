@@ -6,7 +6,7 @@
 /*   By: fwahl <fwahl@student.42heilbronn.de>       +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/09/06 15:05:29 by fwahl             #+#    #+#             */
-/*   Updated: 2025/09/07 18:43:52 by fwahl            ###   ########.fr       */
+/*   Updated: 2025/09/08 00:46:12 by fwahl            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -26,7 +26,8 @@ typedef struct s_conf
     bool                verbose;                // -v flag
     bool                help;                   // -? on windows (-h/ --help on linux/macOS) flag
     bool                bypass_route;           // -r bypass route table
-    int                 ttl;                    // -ttl flag --> time to live 
+    int                 ttl;                    // -t flag value --> time to live 
+    long long           count;                  // -c flag value --> num of echo req to send
     pid_t               pid;                    // PID for ICMP identifier
 }   t_conf;
 

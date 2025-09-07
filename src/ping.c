@@ -6,7 +6,7 @@
 /*   By: fwahl <fwahl@student.42heilbronn.de>       +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/09/06 05:56:17 by fwahl             #+#    #+#             */
-/*   Updated: 2025/09/07 18:14:36 by fwahl            ###   ########.fr       */
+/*   Updated: 2025/09/08 01:01:12 by fwahl            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -174,6 +174,9 @@ void    ft_ping(t_ping *ping)
         recv_ping(&ping->conf, &ping->status);
         seq++;
         
+        // -n flag not sure though
+        if (seq >= ping->conf.count)
+            break ;
         if (g_run)
         {
             alarm(PING_INTERVAL);

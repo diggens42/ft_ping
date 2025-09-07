@@ -6,7 +6,7 @@
 /*   By: fwahl <fwahl@student.42heilbronn.de>       +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/09/06 02:47:36 by fwahl             #+#    #+#             */
-/*   Updated: 2025/09/07 23:30:18 by fwahl            ###   ########.fr       */
+/*   Updated: 2025/09/08 00:58:22 by fwahl            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -25,7 +25,7 @@ static bool parse_verbose(const char *arg, t_conf *conf)
 
 static bool parse_help(const char *arg, t_conf *conf)
 {
-    if (ft_strcmp(arg, "-?") == 0 || ft_strcmp(arg, "--help") == 0 || ft_strcmp(arg, "-h") == 0)
+    if (ft_strcmp(arg, "-h") == 0)
     {
         conf->help = true;
         return (true);
@@ -46,23 +46,46 @@ static bool parse_bypass_route(const char *arg, t_conf *conf)
 
 static int parse_ttl(const char *arg, const char *next_arg, t_conf *conf)
 {
-    if (ft_strcmp(arg,"-ttl") == 0 || ft_strcmp(arg, "--ttl") == 0)
+    if (ft_strcmp(arg,"-t") == 0)
     {
         if(!next_arg)
         {
-            ft_error("parse: opt '-ttl' requires arg\n");
+            print_help();
             return (-1);
         }
         
         int ttl = ft_atoi(next_arg);
         if (ttl <= 0 || ttl > 255 )
         {
-            fprintf("parse: invalid TTL value -- '%s'\n", next_arg);
+            fprintf("ft_ping: invalid argument: '%s': out of range: 0 <= value <= 255\n", next_arg);
             return (-1);
         }
 
         conf->ttl = ttl;
         return (1); //arg consumed
+    }
+    return (0);
+}
+
+static int parse_count(const char *arg, const char *next_arg, t_conf *conf)
+{
+    if (ft_strcmp(arg, "-c"))
+    {
+        if (!next_arg)
+        {
+            print_help();
+            return (-1);
+        }
+        //this should be long long.... need to write atoll or sth xd
+        int count = ft_atoi(next_arg); 
+        if (count <= 0 || count >= __LONG_LONG_MAX__)
+        {
+            fprintf("ping: invalid argument: '%s': out of range: 1 <= value <= 9223372036854775807", next_arg);
+            return (-1);
+        }
+    
+        conf->count = count;
+        return (1);
     }
     return (0);
 }
@@ -79,6 +102,8 @@ static int  parse_arg_flag(const char *arg, const char *next_arg, t_conf *conf)
     int res;
 
     if ((res = parse_ttl(arg, next_arg, conf)) != 0)
+        return (res);
+    if ((res = parse_count(arg, next_arg, conf)) != 0)
         return (res);
     
     return (0);
