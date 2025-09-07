@@ -6,7 +6,7 @@
 /*   By: fwahl <fwahl@student.42heilbronn.de>       +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/09/06 02:45:46 by fwahl             #+#    #+#             */
-/*   Updated: 2025/09/07 00:30:23 by fwahl            ###   ########.fr       */
+/*   Updated: 2025/09/07 18:27:36 by fwahl            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -29,6 +29,7 @@ static bool    init_conf(t_conf *conf)
     conf->pid = getpid();
     conf->verbose = false;
     conf->help = false;
+    conf->bypass_route = false;
 
     return (true);
 }

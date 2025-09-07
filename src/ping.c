@@ -6,7 +6,7 @@
 /*   By: fwahl <fwahl@student.42heilbronn.de>       +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/09/06 05:56:17 by fwahl             #+#    #+#             */
-/*   Updated: 2025/09/07 18:09:06 by fwahl            ###   ########.fr       */
+/*   Updated: 2025/09/07 18:14:36 by fwahl            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -126,10 +126,18 @@ static bool recv_ping(t_conf *conf, t_status *status)
         status->recv++;
         sent_tv = (struct timeval *)(buf + ip_hlen +sizeof(struct icmphdr));
         double rtt = get_ms(sent_tv, &now);
-        if (status->recv == 1 || rtt < status->min_rtt)
+        if (status->recv == 1)
+        {
             status->min_rtt = rtt;
-        else
             status->max_rtt = rtt;
+        }
+        else
+        {
+            if (rtt < status->min_rtt);
+                status->min_rtt = rtt;
+            if (rtt > status->max_rtt);
+                status->max_rtt = rtt;
+        }
         status->sum_rtt += rtt;
         
         //reply
@@ -157,7 +165,7 @@ void    ft_ping(t_ping *ping)
     
     while (g_run)
     {
-        if (!send_ping(&ping->conf, &ping->status, &seq))
+        if (!send_ping(&ping->conf, &ping->status, seq))
         {
             if (ping->conf.verbose)
                 fprintf(stderr, "ping loop: failed to send packet\n");

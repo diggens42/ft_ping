@@ -6,7 +6,7 @@
 /*   By: fwahl <fwahl@student.42heilbronn.de>       +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/09/06 15:05:29 by fwahl             #+#    #+#             */
-/*   Updated: 2025/09/07 01:15:35 by fwahl            ###   ########.fr       */
+/*   Updated: 2025/09/07 18:25:39 by fwahl            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -21,10 +21,13 @@ typedef struct s_conf
     int                 packet_size;            // size of ICMP payload in bytes
     int                 socket_fd;              // raw socket fd
     int                 timeout;                // timeout for reply (in ms?)
+    
+    //flags
     bool                verbose;                // -v flag
     bool                help;                   // -? on windows (-h/ --help on linux/macOS) flag
-    pid_t               pid;                    // PID for ICMP identifier
+    bool                bypass_route;           // -r bypass route table
     
+    pid_t               pid;                    // PID for ICMP identifier
 }   t_conf;
 
 

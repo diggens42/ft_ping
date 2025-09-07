@@ -6,7 +6,7 @@
 /*   By: fwahl <fwahl@student.42heilbronn.de>       +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/09/06 02:47:36 by fwahl             #+#    #+#             */
-/*   Updated: 2025/09/06 23:11:21 by fwahl            ###   ########.fr       */
+/*   Updated: 2025/09/07 18:37:46 by fwahl            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -34,9 +34,21 @@ static bool parse_help(const char *arg, t_conf *conf)
     return (false);
 }
 
+static bool parse_bypass_route(const char *arg, t_conf *conf)
+{
+    if (ft_strcmp(arg,"-r") == 0)
+    {
+        conf->bypass_route = true;
+        return (true);
+    }
+    return (false);
+}
+
 static bool parse_flag(const char *arg, t_conf *conf)
 {
-    return (parse_verbose(arg, conf) || parse_help(arg, conf));
+    return (parse_verbose(arg, conf) 
+         || parse_help(arg, conf) 
+         || parse_bypass_route(arg, conf));
 }
 
 static bool parse_target(const char *arg, t_conf *conf)
