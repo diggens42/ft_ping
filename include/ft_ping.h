@@ -6,7 +6,7 @@
 /*   By: fwahl <fwahl@student.42heilbronn.de>       +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/09/06 02:45:57 by fwahl             #+#    #+#             */
-/*   Updated: 2025/09/07 01:41:41 by fwahl            ###   ########.fr       */
+/*   Updated: 2025/09/07 18:03:23 by fwahl            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -30,6 +30,7 @@ bool    parse(int argc, char **argv, t_conf *conf);
 bool	resolve_hostname(t_conf *conf);
 bool    create_socket(int socket_fd);
 void    init_sig_handlers(void);
+void    ft_ping(t_ping *ping);
 
 void    ft_error(const char *msg);
 void    print_use(const char *exec_name);

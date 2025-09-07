@@ -6,7 +6,7 @@
 /*   By: fwahl <fwahl@student.42heilbronn.de>       +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/09/06 05:56:17 by fwahl             #+#    #+#             */
-/*   Updated: 2025/09/07 17:13:18 by fwahl            ###   ########.fr       */
+/*   Updated: 2025/09/07 18:09:06 by fwahl            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -84,16 +84,18 @@ static bool send_ping(t_conf *conf, t_status *status, int seq)
 static bool recv_ping(t_conf *conf, t_status *status)
 {
     char                buf[1024];
+    struct iovec        iov;
     struct msghdr       msg;
     struct sockaddr_in  from;
     struct timeval      now, *sent_tv;
-    double              rtt;
+
 
     ft_memset(&msg, 0, sizeof(msg));
     msg.msg_name = &from;
     msg.msg_namelen = sizeof(from);
-    msg.msg_iov->iov_base = &buf;
-    msg.msg_iov->iov_len = sizeof(buf);
+    iov.iov_base = buf;
+    iov.iov_len = sizeof(buf);
+    msg.msg_iov = &iov;
     msg.msg_iovlen = 1;
 
     ssize_t nbytes = recvmsg(conf->socket_fd, &msg, 0);
@@ -112,14 +114,44 @@ static bool recv_ping(t_conf *conf, t_status *status)
     }
 
     gettimeofday(&now, NULL);
-    //parse ip header
-    //parse icmp header
-    //check of it is echo reply
+
+    struct iphdr *ip = (struct iphdr *)buf;
+    int ip_hlen = ip->ihl * 4;
     
+    struct icmphdr *icmp = (struct icmphdr *)(buf + ip_hlen);
+    
+    //check if its correct echo reply
+    if (ntohs(icmp->un.echo.id) == conf->pid && icmp->type == ICMP_ECHOREPLY)
+    {
+        status->recv++;
+        sent_tv = (struct timeval *)(buf + ip_hlen +sizeof(struct icmphdr));
+        double rtt = get_ms(sent_tv, &now);
+        if (status->recv == 1 || rtt < status->min_rtt)
+            status->min_rtt = rtt;
+        else
+            status->max_rtt = rtt;
+        status->sum_rtt += rtt;
+        
+        //reply
+        printf("%ld bytes from %s: icmp_seq=%d ttl=%d time=%.1f ms\n",
+                nbytes-ip_hlen, conf->res_ip, ntohs(icmp->un.echo.sequence), ip->ttl, rtt);
+        return (true);
+    }
+    else if (conf->verbose)
+    {
+        //other icmp types with verbose flag
+        if (icmp->type == ICMP_DEST_UNREACH)
+            printf("From %s: dest unreachable\n", inet_ntoa(from.sin_addr));
+        else if (icmp->type == ICMP_TIME_EXCEEDED)
+            printf("From %s: ttl exceeded\n", inet_ntoa(from.sin_addr));
+        else
+            printf("From %s: type=%d code=%d\n", inet_ntoa(from.sin_addr),icmp->type, icmp->code);
+    }
+    return (false);
 }
 
 
-void    ping(t_ping *ping)
+void    ft_ping(t_ping *ping)
 {
     int seq = 1;
     

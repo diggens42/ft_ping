@@ -6,7 +6,7 @@
 /*   By: fwahl <fwahl@student.42heilbronn.de>       +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/09/06 02:45:39 by fwahl             #+#    #+#             */
-/*   Updated: 2025/09/07 01:45:05 by fwahl            ###   ########.fr       */
+/*   Updated: 2025/09/07 18:03:42 by fwahl            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -48,9 +48,9 @@ int main(int argc, char **argv)
     
     init_sig_handlers();
     gettimeofday(&ping.status.start, NULL);
-
-    // ping loop
-    // free all
+    ft_ping(&ping);
+    
+    //cleanup()
 
     return (EXIT_SUCCESS);
 }
