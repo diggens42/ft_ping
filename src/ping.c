@@ -6,7 +6,7 @@
 /*   By: fwahl <fwahl@student.42heilbronn.de>       +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/09/06 05:56:17 by fwahl             #+#    #+#             */
-/*   Updated: 2025/09/07 02:29:14 by fwahl            ###   ########.fr       */
+/*   Updated: 2025/09/07 02:34:46 by fwahl            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -49,7 +49,7 @@ static uint16_t get_checksum(void *data, int len)
 static bool send_ping(t_conf *conf, t_status *status, int seq)
 {
     t_packet        packet;
-    struct timeval  *tv;
+    struct timeval  tv_now;
     
     //init packet & icmp header
     ft_memset(&packet, 0, sizeof(packet));
@@ -60,13 +60,14 @@ static bool send_ping(t_conf *conf, t_status *status, int seq)
     packet.header.checksum = 0;
 
     // fill packet.data with timestamp and leftover bytes with pattern
-    tv = (struct timeval *)packet.data;
-    gettimeofday(tv, NULL);
-    for (int i = sizeof(struct timeval); i < conf->packet_size; i++)
+    gettimeofday(&tv_now, NULL);
+    memcpy(packet.data, &tv_now, sizeof(tv_now));
+    for (int i = sizeof(tv_now); i < conf->packet_size; i++)
         packet.data[i] = i;
 
     packet.header.checksum = get_checksum(&packet, sizeof(packet.header) + conf->packet_size);
     
+    //send packet
     ssize_t nbytes = sendto(conf->socket_fd, &packet, sizeof(packet.header) + conf->packet_size, 0, (struct sockaddr *)&conf->dest, sizeof(conf->dest));
     if (nbytes < 0)
     {
