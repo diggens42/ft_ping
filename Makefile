@@ -8,7 +8,13 @@ NAME	=	ft_ping
 SRCS	=	./src/main.c \
 			./src/init.c \
 			./src/parse.c \
+			./src/resolve.c \
+			./src/socket.c \
+			./src/signal.c \
+			./src/ping.c \
+			./src/options.c \
 			./src/utils.c
+			
 OBJS	=	$(SRCS:.c=.o)
 HEADERS	=	./include/ft_ping.h
 
