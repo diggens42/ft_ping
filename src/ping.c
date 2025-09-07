@@ -6,7 +6,7 @@
 /*   By: fwahl <fwahl@student.42heilbronn.de>       +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/09/06 05:56:17 by fwahl             #+#    #+#             */
-/*   Updated: 2025/09/07 02:34:46 by fwahl            ###   ########.fr       */
+/*   Updated: 2025/09/07 17:13:18 by fwahl            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -83,6 +83,38 @@ static bool send_ping(t_conf *conf, t_status *status, int seq)
 
 static bool recv_ping(t_conf *conf, t_status *status)
 {
+    char                buf[1024];
+    struct msghdr       msg;
+    struct sockaddr_in  from;
+    struct timeval      now, *sent_tv;
+    double              rtt;
+
+    ft_memset(&msg, 0, sizeof(msg));
+    msg.msg_name = &from;
+    msg.msg_namelen = sizeof(from);
+    msg.msg_iov->iov_base = &buf;
+    msg.msg_iov->iov_len = sizeof(buf);
+    msg.msg_iovlen = 1;
+
+    ssize_t nbytes = recvmsg(conf->socket_fd, &msg, 0);
+    if (nbytes < 0)
+    {
+        if (errno == EAGAIN || errno == EWOULDBLOCK)
+        {
+            if (conf->verbose)
+                printf("recv_ping: req timout icmp_seq %d\n", status->sent);
+            status->err++;
+            return (false);
+        }
+        if (conf->verbose)
+            fprintf(stderr, "recv_ping: recvmsg %s\n", strerror(errno));
+        return (false);
+    }
+
+    gettimeofday(&now, NULL);
+    //parse ip header
+    //parse icmp header
+    //check of it is echo reply
     
 }
 
