@@ -6,7 +6,7 @@
 /*   By: fwahl <fwahl@student.42heilbronn.de>       +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/09/07 00:36:41 by fwahl             #+#    #+#             */
-/*   Updated: 2025/09/07 18:33:31 by fwahl            ###   ########.fr       */
+/*   Updated: 2025/09/07 23:37:33 by fwahl            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -14,7 +14,6 @@
 
 bool    create_socket(t_conf *conf)
 {
-    int             ttl = 64; //time to live
     struct timeval  tv;
 
     //create socket
@@ -28,14 +27,6 @@ bool    create_socket(t_conf *conf)
         return (false);
     }
 
-    //set ttl
-    if (setsockopt(conf->socket_fd, IPPROTO_IP, IP_TTL, &ttl, sizeof(ttl)) < 0)
-    {
-        fprintf(stderr, "create_socket: setsockopt ttl %s\n", strerror(errno));
-        close(conf->socket_fd);
-        return (false);
-    }
-    
     tv.tv_sec = 1;
     tv.tv_usec = 0;
     //set recv timout
@@ -45,7 +36,19 @@ bool    create_socket(t_conf *conf)
         close(conf->socket_fd);
         return (false);
     }
+    
+    // -ttl flag
+    if (conf->ttl > 0)
+    {
+        if (setsockopt(conf->socket_fd, IPPROTO_IP, IP_TTL, &conf->ttl, sizeof(conf->ttl)) < 0)
+        {
+            fprintf(stderr, "create_socket: setsockopt ttl %s\n", strerror(errno));
+            close(conf->socket_fd);
+            return (false);
+        }
+    }
 
+    // -r flag
     if (conf->bypass_route)
     {
         int val = 1;

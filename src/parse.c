@@ -6,7 +6,7 @@
 /*   By: fwahl <fwahl@student.42heilbronn.de>       +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/09/06 02:47:36 by fwahl             #+#    #+#             */
-/*   Updated: 2025/09/07 18:37:46 by fwahl            ###   ########.fr       */
+/*   Updated: 2025/09/07 23:30:18 by fwahl            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -44,11 +44,44 @@ static bool parse_bypass_route(const char *arg, t_conf *conf)
     return (false);
 }
 
-static bool parse_flag(const char *arg, t_conf *conf)
+static int parse_ttl(const char *arg, const char *next_arg, t_conf *conf)
+{
+    if (ft_strcmp(arg,"-ttl") == 0 || ft_strcmp(arg, "--ttl") == 0)
+    {
+        if(!next_arg)
+        {
+            ft_error("parse: opt '-ttl' requires arg\n");
+            return (-1);
+        }
+        
+        int ttl = ft_atoi(next_arg);
+        if (ttl <= 0 || ttl > 255 )
+        {
+            fprintf("parse: invalid TTL value -- '%s'\n", next_arg);
+            return (-1);
+        }
+
+        conf->ttl = ttl;
+        return (1); //arg consumed
+    }
+    return (0);
+}
+
+static bool parse_no_arg_flag(const char *arg, t_conf *conf)
 {
     return (parse_verbose(arg, conf) 
          || parse_help(arg, conf) 
          || parse_bypass_route(arg, conf));
+}
+
+static int  parse_arg_flag(const char *arg, const char *next_arg, t_conf *conf)
+{
+    int res;
+
+    if ((res = parse_ttl(arg, next_arg, conf)) != 0)
+        return (res);
+    
+    return (0);
 }
 
 static bool parse_target(const char *arg, t_conf *conf)
@@ -75,17 +108,28 @@ bool    parse(int argc, char **argv, t_conf *conf)
     {
         if (argv[i][0] == '-')
         {
-            if (!parse_flag(argv[i], conf))
+            if (parse_no_arg_flag(argv[i], conf))
+                continue ;
+
+            const char *next_arg = (i + 1 < argc) ? argv[i + 1] : NULL;
+            int arg_res = parse_arg_flag(argv[i], next_arg, conf);
+
+            if (arg_res == 1)
             {
-                fprintf(stderr, "parse: invalid option -- '%s'\n", argv[i]);
-                return (false);
+                i++;
+                continue ;
             }
+            else if (arg_res == -1)
+                return (false);
+            fprintf(stderr, "parse: invalid option -- '%s'\n", argv[i]);
+            return (false);
         }
         else
         {
             if (!parse_target(argv[i], conf))
                 return (false);
         }
+        
     }
 
     if (!conf->help && !conf->tar)
