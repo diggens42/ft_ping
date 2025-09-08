@@ -6,7 +6,7 @@
 /*   By: fwahl <fwahl@student.42heilbronn.de>       +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/09/06 02:47:36 by fwahl             #+#    #+#             */
-/*   Updated: 2025/09/08 00:58:22 by fwahl            ###   ########.fr       */
+/*   Updated: 2025/09/09 01:01:18 by fwahl            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -57,7 +57,7 @@ static int parse_ttl(const char *arg, const char *next_arg, t_conf *conf)
         int ttl = ft_atoi(next_arg);
         if (ttl <= 0 || ttl > 255 )
         {
-            fprintf("ft_ping: invalid argument: '%s': out of range: 0 <= value <= 255\n", next_arg);
+            fprintf(stderr, "ft_ping: invalid argument: '%s': out of range: 0 <= value <= 255\n", next_arg);
             return (-1);
         }
 
@@ -77,10 +77,10 @@ static int parse_count(const char *arg, const char *next_arg, t_conf *conf)
             return (-1);
         }
         //this should be long long.... need to write atoll or sth xd
-        int count = ft_atoi(next_arg); 
+        long long count = ft_atoll(next_arg); 
         if (count <= 0 || count >= __LONG_LONG_MAX__)
         {
-            fprintf("ping: invalid argument: '%s': out of range: 1 <= value <= 9223372036854775807", next_arg);
+            fprintf(stderr, "ping: invalid argument: '%s': out of range: 1 <= value <= 9223372036854775807", next_arg);
             return (-1);
         }
     
@@ -116,13 +116,12 @@ static bool parse_target(const char *arg, t_conf *conf)
         conf->tar = ft_strdup(arg);
         if (!conf->tar)
         {
-            ft_error("parse: parse target malloc failed\n");
+            fprintf(stderr, "parse: parse target malloc failed\n");
             return (false);
         }
         return (true);
     }
-    
-    ft_error("parse: parse target extra operand\n");
+    fprintf(stderr, "parse: parse target extra operand\n");
     return (false);
 }
 
@@ -159,8 +158,7 @@ bool    parse(int argc, char **argv, t_conf *conf)
 
     if (!conf->help && !conf->tar)
 	{
-		ft_error("parse: missing destination\n");
-		print_usage(argv[0]);
+		fprintf(stderr, "ft_ping: usage error: Destination address required\n");
 		return (false);
 	}
     

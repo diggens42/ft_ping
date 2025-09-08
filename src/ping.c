@@ -6,25 +6,11 @@
 /*   By: fwahl <fwahl@student.42heilbronn.de>       +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/09/06 05:56:17 by fwahl             #+#    #+#             */
-/*   Updated: 2025/09/08 01:01:12 by fwahl            ###   ########.fr       */
+/*   Updated: 2025/09/09 00:49:20 by fwahl            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "../include/ft_ping.h"
-
-// int ping_loop()
-// {
-//     while (g_run) {
-//     // 1. Prepare ICMP packet
-//     // 2. Send packet using sendto()
-//     // 3. Receive reply using recvmsg()
-//     // 4. Parse and validate reply
-//     // 5. Calculate RTT
-//     // 6. Display results
-//     // 7. Update statistics
-//     // 8. Wait 1 second (usleep(1000000))
-// }
-// }
 
 static uint16_t get_checksum(void *data, int len)
 {
@@ -133,9 +119,9 @@ static bool recv_ping(t_conf *conf, t_status *status)
         }
         else
         {
-            if (rtt < status->min_rtt);
+            if (rtt < status->min_rtt)
                 status->min_rtt = rtt;
-            if (rtt > status->max_rtt);
+            if (rtt > status->max_rtt)
                 status->max_rtt = rtt;
         }
         status->sum_rtt += rtt;

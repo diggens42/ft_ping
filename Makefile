@@ -12,7 +12,6 @@ SRCS	=	./src/main.c \
 			./src/socket.c \
 			./src/signal.c \
 			./src/ping.c \
-			./src/options.c \
 			./src/utils.c
 			
 OBJS	=	$(SRCS:.c=.o)

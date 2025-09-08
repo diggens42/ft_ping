@@ -6,7 +6,7 @@
 /*   By: fwahl <fwahl@student.42heilbronn.de>       +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/09/06 02:45:57 by fwahl             #+#    #+#             */
-/*   Updated: 2025/09/07 18:30:40 by fwahl            ###   ########.fr       */
+/*   Updated: 2025/09/09 01:02:46 by fwahl            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -32,8 +32,7 @@ bool    create_socket(t_conf *conf);
 void    init_sig_handlers(void);
 void    ft_ping(t_ping *ping);
 
-void    ft_error(const char *msg);
-void    print_use(const char *exec_name);
 void	print_help(void);
+double	get_ms(struct timeval *sent, struct timeval *recv);
 
 #endif

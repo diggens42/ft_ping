@@ -73,3 +73,4 @@ The key challenges in your C implementation will be proper checksum calculation,
 - one more flag
 - r flag is weird
 - ft_atoll for -c flag
+- get_ms helper function

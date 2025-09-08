@@ -6,7 +6,7 @@
 /*   By: fwahl <fwahl@student.42heilbronn.de>       +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/09/06 02:45:46 by fwahl             #+#    #+#             */
-/*   Updated: 2025/09/07 23:38:15 by fwahl            ###   ########.fr       */
+/*   Updated: 2025/09/09 01:03:42 by fwahl            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -57,13 +57,13 @@ bool    init(t_ping *ping)
 {
     if (!init_conf(&ping->conf))
     {
-        ft_error("init: failed to init config struct");
+        fprintf(stderr, "init: failed to init config struct");
         return (false);
     }
 
     if (!init_status(&ping->status))
     {
-        ft_error("init: failed to init status struct");
+        fprintf(stderr, "init: failed to init status struct");
         return (false);
     }
 

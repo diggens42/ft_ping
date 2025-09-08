@@ -6,7 +6,7 @@
 /*   By: fwahl <fwahl@student.42heilbronn.de>       +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/09/07 00:34:39 by fwahl             #+#    #+#             */
-/*   Updated: 2025/09/07 00:36:17 by fwahl            ###   ########.fr       */
+/*   Updated: 2025/09/09 01:02:24 by fwahl            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -32,7 +32,7 @@ bool	resolve_hostname(t_conf *conf)
     //convert ip to str
 	if (!inet_ntop(AF_INET, &conf->dest.sin_addr, conf->res_ip, INET_ADDRSTRLEN))
 	{
-		ft_error("resolve_hostname: inet_ntop failed");
+		fprintf(stderr, "resolve_hostname: inet_ntop failed\n");
 		freeaddrinfo(addr_list);
 		return false;
 	}
