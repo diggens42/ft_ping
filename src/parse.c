@@ -6,15 +6,16 @@
 /*   By: fwahl <fwahl@student.42heilbronn.de>       +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/09/06 02:47:36 by fwahl             #+#    #+#             */
-/*   Updated: 2025/09/09 01:01:18 by fwahl            ###   ########.fr       */
+/*   Updated: 2025/09/09 04:02:52 by fwahl            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "../include/ft_ping.h"
 
+//-v, --verbose in inetutils2.0 ping ref
 static bool parse_verbose(const char *arg, t_conf *conf)
 {
-    if (ft_strcmp(arg, "-v") == 0)
+    if (ft_strcmp(arg, "-v") == 0 || ft_strcmp(arg, "--verbose"))
     {
         conf->verbose = 1;
         return (true);
@@ -22,10 +23,10 @@ static bool parse_verbose(const char *arg, t_conf *conf)
 
     return (false);
 }
-
+//-? , --help in inetutils2.0 ping ref
 static bool parse_help(const char *arg, t_conf *conf)
 {
-    if (ft_strcmp(arg, "-h") == 0)
+    if (ft_strcmp(arg, "-?") == 0 || ft_strcmp(arg, "--help"))
     {
         conf->help = true;
         return (true);
@@ -33,10 +34,10 @@ static bool parse_help(const char *arg, t_conf *conf)
     
     return (false);
 }
-
+//-r, --ignore-routing in inetutils2.0 ping ref
 static bool parse_bypass_route(const char *arg, t_conf *conf)
 {
-    if (ft_strcmp(arg,"-r") == 0)
+    if (ft_strcmp(arg, "-r") == 0 || ft_strcmp(arg, "--ignore-routing"))
     {
         conf->bypass_route = true;
         return (true);
@@ -46,7 +47,7 @@ static bool parse_bypass_route(const char *arg, t_conf *conf)
 
 static int parse_ttl(const char *arg, const char *next_arg, t_conf *conf)
 {
-    if (ft_strcmp(arg,"-t") == 0)
+    if (ft_strcmp(arg,"-ttl") == 0)
     {
         if(!next_arg)
         {
@@ -55,7 +56,9 @@ static int parse_ttl(const char *arg, const char *next_arg, t_conf *conf)
         }
         
         int ttl = ft_atoi(next_arg);
-        if (ttl <= 0 || ttl > 255 )
+        if (ttl == 0)
+            fprintf(stderr, "ft_ping: cannot set unicast time-to-live: Invalid argument\n");
+        if (ttl < 0 || ttl > 255 )
         {
             fprintf(stderr, "ft_ping: invalid argument: '%s': out of range: 0 <= value <= 255\n", next_arg);
             return (-1);
@@ -76,7 +79,7 @@ static int parse_count(const char *arg, const char *next_arg, t_conf *conf)
             print_help();
             return (-1);
         }
-        //this should be long long.... need to write atoll or sth xd
+        
         long long count = ft_atoll(next_arg); 
         if (count <= 0 || count >= __LONG_LONG_MAX__)
         {

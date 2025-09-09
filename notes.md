@@ -62,7 +62,45 @@ Handle various ICMP error types that might come back instead of echo replies, li
 The key challenges in your C implementation will be proper checksum calculation, handling the raw socket mechanics, and parsing the received packets correctly to extract timing information.
 
 
+**inetutils2.0 ping list of options**
 
+Usage: ping [OPTION...] HOST ...
+Send ICMP ECHO_REQUEST packets to network hosts.
+
+Options controlling ICMP request types:
+  --address           send ICMP_ADDRESS packets (root only)
+  --echo              send ICMP_ECHO packets (default)
+  --mask              same as --address
+  --timestamp         send ICMP_TIMESTAMP packets
+  -t, --type=TYPE     send TYPE packets
+
+Options valid for all request types:
+  -c, --count=COUNT   stop after sending (and receiving) COUNT ECHO_RESPONSE packets
+  -d, --debug         set the SO_DEBUG option on the socket being used
+  -f, --flood         flood ping; outputs packets as fast as they come back or 100 times per second, whichever is more
+  -i, --interval=WAIT wait WAIT seconds between sending each packet
+  -l, --preload=PRELOAD
+                       if preload is specified, ping sends that many packets as fast as possible before falling into normal mode of behavior
+  -n, --numeric       numeric output only; no attempt will be made to lookup symbolic names for host addresses
+  -p, --pattern=PATTERN
+                       specify up to 16 "pad" bytes to fill out the packet you send
+  -q, --quiet         quiet output; only summary is printed at start and finish
+  -R, --route         record route; includes RECORD_ROUTE option; prints the route
+  -r, --ignore-routing
+                       bypass normal routing and send directly to a host on an attached network
+  -s, --size=PACKETSIZE
+                       specify the number of data bytes to send
+  -v, --verbose       verbose output; lists non-ECHO_RESPONSE ICMP packets received
+  --ttl=N             set packet time-to-live to N
+  -T, --tos=NUM       set Type-of-Service (TOS) to NUM
+  -w, --timeout=N     stop after N seconds of sending packets
+  -W, --linger=N      number of seconds to wait for response before quitting
+  --ip-timestamp=FLAG
+                       include timestamp option; FLAG is one of "tsonly" or "tsaddr"
+
+  -?, --help          display this help list
+  --usage             display a short usage message
+  -V, --version       print the program version
 
 
 ### TO DO
@@ -70,7 +108,10 @@ The key challenges in your C implementation will be proper checksum calculation,
 -signals
 -errorhandling like og ping command
 -setup vm 
-- one more flag
-- r flag is weird
-- ft_atoll for -c flag
-- get_ms helper function
+
+-change parsing to work for inetutils2.0 ping with --flag=ARG
+- bonus flags so far: 
+		-c --count=COUNT
+		--ttl
+		-r
+- bonus flags to consider: -f / --flood

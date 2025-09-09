@@ -6,7 +6,7 @@
 /*   By: fwahl <fwahl@student.42heilbronn.de>       +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/09/06 02:45:39 by fwahl             #+#    #+#             */
-/*   Updated: 2025/09/07 18:30:53 by fwahl            ###   ########.fr       */
+/*   Updated: 2025/09/09 02:24:43 by fwahl            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -20,7 +20,7 @@ int main(int argc, char **argv)
 
     if (!init(&ping))
         return (EXIT_ERROR);
-    
+
     if (!parse(argc, argv, &ping.conf))
     {
         //cleanup()

@@ -6,7 +6,7 @@
 /*   By: fwahl <fwahl@student.42heilbronn.de>       +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/09/06 02:45:50 by fwahl             #+#    #+#             */
-/*   Updated: 2025/09/09 01:01:06 by fwahl            ###   ########.fr       */
+/*   Updated: 2025/09/09 03:58:49 by fwahl            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -14,12 +14,16 @@
 
 void	print_help(void)
 {
-	printf("\nUsage\n");
-	printf("  ft_ping [options] <destination>\n\n");
-	printf("Options:\n");
-	printf("  <destination>      dns name or ip address\n");
-	printf("  -v              	verbose output\n");
-	printf("  -h      			give this help list\n");
+	printf("\nUsage: ft+ping [OPTION...] HOST ...\n");
+	printf("Send ICMP ECHO_REQUEST packets to network hosts.\n\n");
+	printf("Options valid for all request types:\n");
+	printf("  -c, --count=COUNT   stop after sending (and receiving) COUNT ECHO_RESPONSE packets\n");
+	printf("  -r, --ignore-routing\n");
+    printf("                       bypass normal routing and send directly to a host on an attached network\n");
+	printf("  -v, --verbose       verbose output; lists non-ECHO_RESPONSE ICMP packets received\n");
+	printf("\n");
+	printf("  -?, --help          display this help list\n");
+
 }
 
 double get_ms(struct timeval *sent, struct timeval *recv)
