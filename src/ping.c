@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   ping.c                                             :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: fwahl <fwahl@student.42heilbronn.de>       +#+  +:+       +#+        */
+/*   By: fwahl <fwahl@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/09/06 05:56:17 by fwahl             #+#    #+#             */
-/*   Updated: 2025/09/09 00:49:20 by fwahl            ###   ########.fr       */
+/*   Updated: 2025/09/09 21:21:53 by fwahl            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -16,16 +16,16 @@ static uint16_t get_checksum(void *data, int len)
 {
     uint16_t    *buf = data;
     uint32_t    sum = 0;
-    
+
     while (len > 1)
     {
         sum += *buf++;
         len -= 2;
     }
-    
+
     if (len == 1)
         sum += *(uint8_t*)buf;
-    
+
     sum = (sum >> 16) + (sum & 0xFFFF);
     sum += (sum >> 16);
 
@@ -36,7 +36,7 @@ static bool send_ping(t_conf *conf, t_status *status, int seq)
 {
     t_packet        packet;
     struct timeval  tv_now;
-    
+
     //init packet & icmp header
     ft_memset(&packet, 0, sizeof(packet));
     packet.header.type = ICMP_ECHO;
@@ -52,7 +52,7 @@ static bool send_ping(t_conf *conf, t_status *status, int seq)
         packet.data[i] = i;
 
     packet.header.checksum = get_checksum(&packet, sizeof(packet.header) + conf->packet_size);
-    
+
     //send packet
     ssize_t nbytes = sendto(conf->socket_fd, &packet, sizeof(packet.header) + conf->packet_size, 0, (struct sockaddr *)&conf->dest, sizeof(conf->dest));
     if (nbytes < 0)
@@ -62,7 +62,7 @@ static bool send_ping(t_conf *conf, t_status *status, int seq)
         return (false);
     }
     status->sent++;
-    
+
     return (true);
 }
 
@@ -103,9 +103,9 @@ static bool recv_ping(t_conf *conf, t_status *status)
 
     struct iphdr *ip = (struct iphdr *)buf;
     int ip_hlen = ip->ihl * 4;
-    
+
     struct icmphdr *icmp = (struct icmphdr *)(buf + ip_hlen);
-    
+
     //check if its correct echo reply
     if (ntohs(icmp->un.echo.id) == conf->pid && icmp->type == ICMP_ECHOREPLY)
     {
@@ -125,7 +125,7 @@ static bool recv_ping(t_conf *conf, t_status *status)
                 status->max_rtt = rtt;
         }
         status->sum_rtt += rtt;
-        
+
         //reply
         printf("%ld bytes from %s: icmp_seq=%d ttl=%d time=%.1f ms\n",
                 nbytes-ip_hlen, conf->res_ip, ntohs(icmp->un.echo.sequence), ip->ttl, rtt);
@@ -147,8 +147,8 @@ static bool recv_ping(t_conf *conf, t_status *status)
 
 void    ft_ping(t_ping *ping)
 {
-    int seq = 1;
-    
+    int seq = 0;
+
     while (g_run)
     {
         if (!send_ping(&ping->conf, &ping->status, seq))
@@ -156,17 +156,17 @@ void    ft_ping(t_ping *ping)
             if (ping->conf.verbose)
                 fprintf(stderr, "ping loop: failed to send packet\n");
         }
-        
+
         recv_ping(&ping->conf, &ping->status);
         seq++;
-        
+
         // -n flag not sure though
-        if (seq >= ping->conf.count)
-            break ;
-        if (g_run)
-        {
-            alarm(PING_INTERVAL);
-            pause(); // not sure if allowed checking later
-        }
+        // if (seq >= ping->conf.count)
+        //     break ;
+        // if (g_run)
+        // {
+        //     alarm(PING_INTERVAL);
+        //     pause(); // not sure if allowed checking later
+        // }
     }
 }

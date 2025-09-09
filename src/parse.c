@@ -6,7 +6,7 @@
 /*   By: fwahl <fwahl@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/09/06 02:47:36 by fwahl             #+#    #+#             */
-/*   Updated: 2025/09/09 20:56:17 by fwahl            ###   ########.fr       */
+/*   Updated: 2025/09/09 21:21:01 by fwahl            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -55,27 +55,42 @@ static bool parse_bypass_route(const char *arg, t_conf *conf)
 
 static int parse_ttl(const char *arg, const char *next_arg, t_conf *conf)
 {
+    char    *val = NULL;
+    int     used_args = 0;
     if (ft_strcmp(arg,"-ttl") == 0)
     {
         if(!next_arg)
         {
-            print_help();
-            return (-1);
+            fprintf(stderr, "ft_ping: option '%s' requires an argument\n", arg);
+            return (PARSE_ERROR);
         }
 
-        int ttl = ft_atoi(next_arg);
-        if (ttl == 0)
-            fprintf(stderr, "ft_ping: cannot set unicast time-to-live: Invalid argument\n");
-        if (ttl < 0 || ttl > 255 )
-        {
-            fprintf(stderr, "ft_ping: invalid argument: '%s': out of range: 0 <= value <= 255\n", next_arg);
-            return (-1);
-        }
-
-        conf->ttl = ttl;
-        return (1); //arg consumed
     }
-    return (0);
+    else if ((val = get_long_opt_val(arg, "-ttl")) != NULL)
+        used_args = 0;
+    else
+        return (0);
+    if (!val || !*val)
+    {
+        fprintf(stderr, "ft_ping: option requires an argument -- ttl\n");
+        return (PARSE_ERROR);
+    }
+
+    int ttl = ft_atoi(next_arg);
+    if (ttl == 0 && ft_strcmp(val, "0") != 0)
+    {
+        fprintf(stderr, "ft_ping: invalid argument: '%s': not a valid number\n");
+        return (PARSE_ERROR);
+    }
+        fprintf(stderr, "ft_ping: cannot set unicast time-to-live: Invalid argument\n");
+    if (ttl < 0 || ttl > 255 )
+    {
+        fprintf(stderr, "ft_ping: invalid argument: '%s': out of range: 0 <= value <= 255\n", next_arg);
+        return (PARSE_ERROR);
+    }
+
+    conf->ttl = ttl;
+    return (++used_args);
 }
 //-c / --count=N
 static int parse_count(const char *arg, const char *next_arg, t_conf *conf)
@@ -87,26 +102,26 @@ static int parse_count(const char *arg, const char *next_arg, t_conf *conf)
         if (!next_arg)
         {
             fprintf(stderr, "ft_ping: option '%s' requires an argument \n", arg);
-            return (-1);
+            return (PARSE_ERROR);
         }
         val = (char *)next_arg;
         used_args = 1;
     }
-    else if ((val = get_long_opt_val(arg, "--count")) != 0)
+    else if ((val = get_long_opt_val(arg, "--count")) != NULL)
         used_args = 0;
     else
         return (0);
     if (!val || !*val)
     {
         fprintf(stderr, "ft_ping: option requires an argument -- count\n");
-        return (-1);
+        return (PARSE_ERROR);
     }
     //need to check this again because it behaves differently in inetutils 2.0 ping
     long long count = ft_atoll(next_arg);
     if (count <= 0 || count >= __LONG_LONG_MAX__)
     {
         fprintf(stderr, "ping: invalid argument: '%s': out of range: 1 <= value <= 9223372036854775807", next_arg);
-        return (-1);
+        return (PARSE_ERROR);
     }
     //
     conf->count = count;
