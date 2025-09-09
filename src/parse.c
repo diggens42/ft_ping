@@ -6,11 +6,19 @@
 /*   By: fwahl <fwahl@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/09/06 02:47:36 by fwahl             #+#    #+#             */
-/*   Updated: 2025/09/09 19:13:32 by fwahl            ###   ########.fr       */
+/*   Updated: 2025/09/09 20:56:17 by fwahl            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "../include/ft_ping.h"
+
+static char *get_long_opt_val(const char *arg, const char *opt)
+{
+    size_t  opt_len = ft_strlen(opt);
+    if (ft_strncmp(arg, opt, opt_len) == 0 && arg[opt_len] == '=')
+        return ((char *)(arg + ++opt_len));
+    return (NULL);
+}
 
 //-v, --verbose in inetutils2.0 ping ref
 static bool parse_verbose(const char *arg, t_conf *conf)
