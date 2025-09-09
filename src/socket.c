@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   socket.c                                           :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: fwahl <fwahl@student.42heilbronn.de>       +#+  +:+       +#+        */
+/*   By: fwahl <fwahl@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/09/07 00:36:41 by fwahl             #+#    #+#             */
-/*   Updated: 2025/09/07 23:37:33 by fwahl            ###   ########.fr       */
+/*   Updated: 2025/09/09 21:04:56 by fwahl            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -30,13 +30,13 @@ bool    create_socket(t_conf *conf)
     tv.tv_sec = 1;
     tv.tv_usec = 0;
     //set recv timout
-    if (setsockopt(conf->socket_fd, SOL_SOCKET, SO_RCVTIMEO, &tv, sizeof(tv) < 0))
+    if (setsockopt(conf->socket_fd, SOL_SOCKET, SO_RCVTIMEO, &tv, (sizeof(tv) < 0)))
     {
         fprintf(stderr, "create_socket: setsockopt timeout: %s\n", strerror(errno));
         close(conf->socket_fd);
         return (false);
     }
-    
+
     // -ttl flag
     if (conf->ttl > 0)
     {
@@ -58,7 +58,7 @@ bool    create_socket(t_conf *conf)
             close(conf->socket_fd);
             return (false);
         }
-    }   
+    }
 
     return (true);
 }

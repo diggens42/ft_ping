@@ -103,6 +103,9 @@ Options valid for all request types:
   -V, --version       print the program version
 
 
+sudo setcap cap_net_raw+ep ./ft_ping for socket creation error
+
+
 ### TO DO
 
 -signals
