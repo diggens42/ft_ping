@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   ping.c                                             :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: fwahl <fwahl@student.42.fr>                +#+  +:+       +#+        */
+/*   By: fwahl <fwahl@student.42heilbronn.de>       +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/09/06 05:56:17 by fwahl             #+#    #+#             */
-/*   Updated: 2025/09/09 21:21:53 by fwahl            ###   ########.fr       */
+/*   Updated: 2025/09/10 00:28:00 by fwahl            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -32,7 +32,7 @@ static uint16_t get_checksum(void *data, int len)
     return ((u_int16_t)(~sum));
 }
 
-static bool send_ping(t_conf *conf, t_status *status, int seq)
+static bool send_ping(t_conf *conf, t_stat *stat, int seq)
 {
     t_packet        packet;
     struct timeval  tv_now;
@@ -61,13 +61,13 @@ static bool send_ping(t_conf *conf, t_status *status, int seq)
             fprintf(stderr, "send_ping: sendto %s\n", strerror(errno));
         return (false);
     }
-    status->sent++;
+    stat->sent++;
 
     return (true);
 }
 
 
-static bool recv_ping(t_conf *conf, t_status *status)
+static bool recv_ping(t_conf *conf, t_stat *stat)
 {
     char                buf[1024];
     struct iovec        iov;
@@ -90,8 +90,8 @@ static bool recv_ping(t_conf *conf, t_status *status)
         if (errno == EAGAIN || errno == EWOULDBLOCK)
         {
             if (conf->verbose)
-                printf("recv_ping: req timout icmp_seq %d\n", status->sent);
-            status->err++;
+                printf("recv_ping: req timout icmp_seq %d\n", stat->sent);
+            stat->err++;
             return (false);
         }
         if (conf->verbose)
@@ -109,22 +109,22 @@ static bool recv_ping(t_conf *conf, t_status *status)
     //check if its correct echo reply
     if (ntohs(icmp->un.echo.id) == conf->pid && icmp->type == ICMP_ECHOREPLY)
     {
-        status->recv++;
+        stat->recv++;
         sent_tv = (struct timeval *)(buf + ip_hlen +sizeof(struct icmphdr));
         double rtt = get_ms(sent_tv, &now);
-        if (status->recv == 1)
+        if (stat->recv == 1)
         {
-            status->min_rtt = rtt;
-            status->max_rtt = rtt;
+            stat->min_rtt = rtt;
+            stat->max_rtt = rtt;
         }
         else
         {
-            if (rtt < status->min_rtt)
-                status->min_rtt = rtt;
-            if (rtt > status->max_rtt)
-                status->max_rtt = rtt;
+            if (rtt < stat->min_rtt)
+                stat->min_rtt = rtt;
+            if (rtt > stat->max_rtt)
+                stat->max_rtt = rtt;
         }
-        status->sum_rtt += rtt;
+        stat->sum_rtt += rtt;
 
         //reply
         printf("%ld bytes from %s: icmp_seq=%d ttl=%d time=%.1f ms\n",
@@ -151,13 +151,13 @@ void    ft_ping(t_ping *ping)
 
     while (g_run)
     {
-        if (!send_ping(&ping->conf, &ping->status, seq))
+        if (!send_ping(&ping->conf, &ping->stat, seq))
         {
             if (ping->conf.verbose)
                 fprintf(stderr, "ping loop: failed to send packet\n");
         }
 
-        recv_ping(&ping->conf, &ping->status);
+        recv_ping(&ping->conf, &ping->stat);
         seq++;
 
         // -n flag not sure though

@@ -6,7 +6,7 @@
 /*   By: fwahl <fwahl@student.42heilbronn.de>       +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/09/06 02:45:46 by fwahl             #+#    #+#             */
-/*   Updated: 2025/09/09 01:03:42 by fwahl            ###   ########.fr       */
+/*   Updated: 2025/09/10 00:32:35 by fwahl            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -23,47 +23,45 @@ static bool    init_conf(t_conf *conf)
     conf->dest.sin_family = AF_UNSPEC; //must set = AF_INET later!!
     conf->dest.sin_port = 0;
     conf->dest.sin_addr.s_addr = INADDR_ANY; //must set later
-    conf->packet_size = PACKET_SIZE;
     conf->socket_fd = -1;
-    conf->timeout = 1;
     conf->pid = getpid();
-    conf->verbose = false;
-    conf->help = false;
-    conf->bypass_route = false;
-    conf->ttl = 0;
 
+    conf->flags.verbose = false;
+    conf->flags.help = false;
+    conf->flags.bypass_route = false;
+    
+    conf->opts.packet_size = PACKET_SIZE;
+    conf->opts.timeout = 1;
+    conf->opts.interval = 1;
+    conf->opts.ttl = 0;
+    conf->opts.count = 0;
+    
     return (true);
 }
 
-static bool    init_status(t_status *status)
+static bool    init_stat(t_stat *stat)
 {
-    if (!status)
+    if (!stat)
         return (false);
 
-    ft_memset(status, 0, sizeof(t_status));
-    status->sent = 0;
-    status->recv = 0;
-    status->err = 0;
-    status->max_rtt = 0.0;
-    status->min_rtt = 0.0;
-    status->sum_rtt = 0.0;
-    status->start.tv_sec = 0;
-    status->start.tv_usec = 0;
+    ft_memset(stat, 0, sizeof(t_stat));
+    stat->sent = 0;
+    stat->recv = 0;
+    stat->lost = 0;
+    stat->max_rtt = 0.0;
+    stat->min_rtt = 0.0;
+    stat->sum_rtt = 0.0;
+    stat->start.tv_sec = 0;
+    stat->start.tv_usec = 0;
 
     return (true);
 }
 
 bool    init(t_ping *ping)
 {
-    if (!init_conf(&ping->conf))
+    if (!init_conf(&ping->conf) || !init_stat(&ping->stat))
     {
-        fprintf(stderr, "init: failed to init config struct");
-        return (false);
-    }
-
-    if (!init_status(&ping->status))
-    {
-        fprintf(stderr, "init: failed to init status struct");
+        FT_ERROR();
         return (false);
     }
 

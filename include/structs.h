@@ -3,46 +3,54 @@
 /*                                                        :::      ::::::::   */
 /*   structs.h                                          :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: fwahl <fwahl@student.42.fr>                +#+  +:+       +#+        */
+/*   By: fwahl <fwahl@student.42heilbronn.de>       +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/09/06 15:05:29 by fwahl             #+#    #+#             */
-/*   Updated: 2025/09/09 21:28:59 by fwahl            ###   ########.fr       */
+/*   Updated: 2025/09/10 00:28:00 by fwahl            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "headers.h"
 #include "defines.h"
 
+typedef struct s_flags
+{
+    bool                verbose;        // -v flag 
+    bool                help;           // -? / --help flag
+    bool                bypass_route;   // -r bypass route table
+}   t_flags;
+
+typedef struct s_opts
+{
+    int                 ttl;                    // --ttl flag value --> time to live
+    int                 timeout;                // timeout for reply (in ms?)
+    int                 packet_size;            // size of ICMP payloads in bytes
+    double              interval;               // -i / --interval flag --> interval of seconds in between packages sent
+    long long           count;                  // -c / --count=N flag value --> num of echo req to send 
+}   t_opts;
+
 typedef struct s_conf
 {
     char                *tar;                   // hostname
     char                res_ip[INET_ADDRSTRLEN];// IP after DNS lookup
     struct sockaddr_in  dest;                   // dest address -->  sendto()
-    int                 packet_size;            // size of ICMP payload in bytes
     int                 socket_fd;              // raw socket fd
-    int                 timeout;                // timeout for reply (in ms?)
-
-    //flags
-    bool                verbose;                // -v flag
-    bool                help;                   // -? / --help flag
-    bool                bypass_route;           // -r bypass route table
-    int                 ttl;                    // -ttl flag value --> time to live
-    double              interval;               // -i / --interval flag --> interval of seconds in between packages sent
-    long long           count;                  // -c / --count=N flag value --> num of echo req to send
     pid_t               pid;                    // PID for ICMP identifier
+    t_flags             flags;
+    t_opts              opts;
 }   t_conf;
 
 
-typedef struct s_status
+typedef struct s_stat
 {
     int sent;       // nr of packages sent
     int recv;       // nr of packages received
-    int err;        // nr of errors/timouts
+    int lost;        // nr of errors/timouts
     double max_rtt;  // max round trip time (in ms)
     double min_rtt;  // minimum round trip time (in ms)
     double sum_rtt;  // sum of all round trip times for avg calc
     struct timeval start;  // start time ping;
-}   t_status;
+}   t_stat;
 
 typedef struct s_packet
 {
@@ -53,5 +61,5 @@ typedef struct s_packet
 typedef struct s_ping
 {
     t_conf      conf;
-    t_status    status;
+    t_stat    stat;
 }   t_ping;
