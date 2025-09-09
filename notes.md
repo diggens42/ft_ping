@@ -32,7 +32,7 @@ int sockfd = socket(AF_INET, SOCK_RAW, IPPROTO_ICMP);
 **ICMP Packet Structure**
 The ICMP header has this structure:
 - Type (8 bits): 8 for Echo Request, 0 for Echo Reply
-- Code (8 bits): 0 for echo messages  
+- Code (8 bits): 0 for echo messages
 - Checksum (16 bits): Covers ICMP header and data
 - Identifier (16 bits): Usually process ID to match requests/replies
 - Sequence Number (16 bits): Incremented for each packet sent
@@ -48,7 +48,7 @@ The basic flow is:
 1. Construct ICMP Echo Request with incremented sequence number
 2. Send packet using `sendto()`
 3. Use `select()` or `poll()` with timeout to wait for reply
-4. Receive with `recvfrom()` 
+4. Receive with `recvfrom()`
 5. Parse received packet to extract ICMP reply and validate it matches your request
 6. Calculate and display RTT
 7. Wait 1 second (default interval) and repeat
@@ -107,11 +107,14 @@ Options valid for all request types:
 
 -signals
 -errorhandling like og ping command
--setup vm 
+-setup vm
 
 -change parsing to work for inetutils2.0 ping with --flag=ARG
-- bonus flags so far: 
+- bonus flags so far:
 		-c --count=COUNT
 		--ttl
 		-r
 - bonus flags to consider: -f / --flood
+
+
+-add --usage

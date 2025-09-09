@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   parse.c                                            :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: fwahl <fwahl@student.42heilbronn.de>       +#+  +:+       +#+        */
+/*   By: fwahl <fwahl@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/09/06 02:47:36 by fwahl             #+#    #+#             */
-/*   Updated: 2025/09/09 04:02:52 by fwahl            ###   ########.fr       */
+/*   Updated: 2025/09/09 19:13:32 by fwahl            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -31,7 +31,7 @@ static bool parse_help(const char *arg, t_conf *conf)
         conf->help = true;
         return (true);
     }
-    
+
     return (false);
 }
 //-r, --ignore-routing in inetutils2.0 ping ref
@@ -54,7 +54,7 @@ static int parse_ttl(const char *arg, const char *next_arg, t_conf *conf)
             print_help();
             return (-1);
         }
-        
+
         int ttl = ft_atoi(next_arg);
         if (ttl == 0)
             fprintf(stderr, "ft_ping: cannot set unicast time-to-live: Invalid argument\n");
@@ -69,34 +69,46 @@ static int parse_ttl(const char *arg, const char *next_arg, t_conf *conf)
     }
     return (0);
 }
-
+//-c / --count=N
 static int parse_count(const char *arg, const char *next_arg, t_conf *conf)
 {
-    if (ft_strcmp(arg, "-c"))
+    char    *val = NULL;
+    int     used_args = 0;
+    if (ft_strcmp(arg, "-c") == 0 || ft_strcmp(arg, "--count") == 0)
     {
         if (!next_arg)
         {
-            print_help();
+            fprintf(stderr, "ft_ping: option '%s' requires an argument \n", arg);
             return (-1);
         }
-        
-        long long count = ft_atoll(next_arg); 
-        if (count <= 0 || count >= __LONG_LONG_MAX__)
-        {
-            fprintf(stderr, "ping: invalid argument: '%s': out of range: 1 <= value <= 9223372036854775807", next_arg);
-            return (-1);
-        }
-    
-        conf->count = count;
-        return (1);
+        val = (char *)next_arg;
+        used_args = 1;
     }
-    return (0);
+    else if ((val = get_long_opt_val(arg, "--count")) != 0)
+        used_args = 0;
+    else
+        return (0);
+    if (!val || !*val)
+    {
+        fprintf(stderr, "ft_ping: option requires an argument -- count\n");
+        return (-1);
+    }
+    //need to check this again because it behaves differently in inetutils 2.0 ping
+    long long count = ft_atoll(next_arg);
+    if (count <= 0 || count >= __LONG_LONG_MAX__)
+    {
+        fprintf(stderr, "ping: invalid argument: '%s': out of range: 1 <= value <= 9223372036854775807", next_arg);
+        return (-1);
+    }
+    //
+    conf->count = count;
+    return (++used_args);
 }
 
 static bool parse_no_arg_flag(const char *arg, t_conf *conf)
 {
-    return (parse_verbose(arg, conf) 
-         || parse_help(arg, conf) 
+    return (parse_verbose(arg, conf)
+         || parse_help(arg, conf)
          || parse_bypass_route(arg, conf));
 }
 
@@ -108,7 +120,7 @@ static int  parse_arg_flag(const char *arg, const char *next_arg, t_conf *conf)
         return (res);
     if ((res = parse_count(arg, next_arg, conf)) != 0)
         return (res);
-    
+
     return (0);
 }
 
@@ -146,9 +158,15 @@ bool    parse(int argc, char **argv, t_conf *conf)
                 i++;
                 continue ;
             }
+            else if (arg_res > 1)
+            {
+                i += (arg_res - 1);
+                continue ;
+            }
             else if (arg_res == -1)
                 return (false);
             fprintf(stderr, "parse: invalid option -- '%s'\n", argv[i]);
+            fprintf(stderr, "Try 'ft_ping --help' or 'ft_ping --usage' for more information.\n");
             return (false);
         }
         else
@@ -156,7 +174,7 @@ bool    parse(int argc, char **argv, t_conf *conf)
             if (!parse_target(argv[i], conf))
                 return (false);
         }
-        
+
     }
 
     if (!conf->help && !conf->tar)
@@ -164,6 +182,6 @@ bool    parse(int argc, char **argv, t_conf *conf)
 		fprintf(stderr, "ft_ping: usage error: Destination address required\n");
 		return (false);
 	}
-    
+
     return (true);
 }
