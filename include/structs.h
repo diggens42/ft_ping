@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   structs.h                                          :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: fwahl <fwahl@student.42heilbronn.de>       +#+  +:+       +#+        */
+/*   By: fwahl <fwahl@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/09/06 15:05:29 by fwahl             #+#    #+#             */
-/*   Updated: 2025/09/08 00:46:12 by fwahl            ###   ########.fr       */
+/*   Updated: 2025/09/09 21:28:59 by fwahl            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -21,13 +21,14 @@ typedef struct s_conf
     int                 packet_size;            // size of ICMP payload in bytes
     int                 socket_fd;              // raw socket fd
     int                 timeout;                // timeout for reply (in ms?)
-    
+
     //flags
     bool                verbose;                // -v flag
-    bool                help;                   // -? on windows (-h/ --help on linux/macOS) flag
+    bool                help;                   // -? / --help flag
     bool                bypass_route;           // -r bypass route table
-    int                 ttl;                    // -t flag value --> time to live 
-    long long           count;                  // -c flag value --> num of echo req to send
+    int                 ttl;                    // -ttl flag value --> time to live
+    double              interval;               // -i / --interval flag --> interval of seconds in between packages sent
+    long long           count;                  // -c / --count=N flag value --> num of echo req to send
     pid_t               pid;                    // PID for ICMP identifier
 }   t_conf;
 

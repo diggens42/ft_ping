@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   main.c                                             :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: fwahl <fwahl@student.42heilbronn.de>       +#+  +:+       +#+        */
+/*   By: fwahl <fwahl@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/09/06 02:45:39 by fwahl             #+#    #+#             */
-/*   Updated: 2025/09/09 02:24:43 by fwahl            ###   ########.fr       */
+/*   Updated: 2025/09/09 21:29:39 by fwahl            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -39,17 +39,17 @@ int main(int argc, char **argv)
         //cleanup()
         return (EXIT_FAILURE);
     }
-    
+
     if (!create_socket(&ping.conf))
     {
         //cleanup()
         return (EXIT_FAILURE);
     }
-    
-    init_sig_handlers();
+
+    // init_sig_handlers();
     gettimeofday(&ping.status.start, NULL);
     ft_ping(&ping);
-    
+
     //cleanup()
 
     return (EXIT_SUCCESS);

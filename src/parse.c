@@ -6,7 +6,7 @@
 /*   By: fwahl <fwahl@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/09/06 02:47:36 by fwahl             #+#    #+#             */
-/*   Updated: 2025/09/09 21:21:01 by fwahl            ###   ########.fr       */
+/*   Updated: 2025/09/09 21:32:05 by fwahl            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -79,7 +79,7 @@ static int parse_ttl(const char *arg, const char *next_arg, t_conf *conf)
     int ttl = ft_atoi(next_arg);
     if (ttl == 0 && ft_strcmp(val, "0") != 0)
     {
-        fprintf(stderr, "ft_ping: invalid argument: '%s': not a valid number\n");
+        fprintf(stderr, "ft_ping: invalid argument: '%s': not a valid number\n", val);
         return (PARSE_ERROR);
     }
         fprintf(stderr, "ft_ping: cannot set unicast time-to-live: Invalid argument\n");
@@ -127,6 +127,41 @@ static int parse_count(const char *arg, const char *next_arg, t_conf *conf)
     conf->count = count;
     return (++used_args);
 }
+// -i / --interval
+static int parse_interval(const char *arg, const char *next_arg, t_conf *conf)
+{
+    char    *val = NULL;
+    int     used_args = 0;
+    if (ft_strcmp(arg, "-i") == 0 || ft_strcmp(arg, "--interval") == 0)
+    {
+        if (!next_arg)
+        {
+            fprintf(stderr, "ft_ping: option '%s' requires an argument \n", arg);
+            return (PARSE_ERROR);
+        }
+        val = (char *)next_arg;
+        used_args = 1;
+    }
+    else if ((val = get_long_opt_val(arg, "--interval")) != NULL)
+        used_args = 0;
+    else
+        return (0);
+    if (!val || !*val)
+    {
+        fprintf(stderr, "ft_ping: option requires an argument -- count\n");
+        return (PARSE_ERROR);
+    }
+
+    double interval = atodbl(val);
+    if (interval < 0)
+    {
+        fprintf(stderr, "ping: invalid argument: '%s': out of range: 1 <= value <= 9223372036854775807", next_arg);
+        return (PARSE_ERROR);
+    }
+    conf->interval = interval;
+    return (++used_args);
+}
+
 
 static bool parse_no_arg_flag(const char *arg, t_conf *conf)
 {
