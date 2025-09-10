@@ -6,7 +6,7 @@
 /*   By: fwahl <fwahl@student.42heilbronn.de>       +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/09/10 01:15:51 by fwahl             #+#    #+#             */
-/*   Updated: 2025/09/10 04:44:33 by fwahl            ###   ########.fr       */
+/*   Updated: 2025/09/11 01:25:22 by fwahl            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -14,24 +14,57 @@
 
 static int  parse_ttl(const char *val, t_conf *conf)
 {
+    char    *endptr;
+    long    n;
     
+    if (!val || !*val)
+    {
+        FT_ERROR();
+        return (-1);
+    }
+    errno = 0;
+    n = ft_strtol(val, &endptr, 10);
+    if (errno == ERANGE || n < 0 || n > UINT8_MAX || *endptr != '\0')
+    {
+        FT_ERROR();
+        return (-1);
+    }
+    conf->opts.ttl = (u_int8_t)n;
     return (0);
 }
 
 static int  parse_count(const char *val, t_conf *conf)
 {
-    
+    if (!val || !*val)
+        return (-1);
     return (0);
 }
 
 static int  parse_type(const char *val, t_conf *conf)
 {
+    char    *endptr;
+    long    n;
     
+    if (!val || !*val)
+    {
+        FT_ERROR();
+        return (-1);
+    }
+    errno = 0;
+    n = ft_strtol(val, &endptr, 10);
+    if (errno == ERANGE || n < 0 || n > UINT8_MAX || !ft_is_icmp_type(n) || *endptr != '\0')
+    {
+        FT_ERROR();
+        return (-1);
+    }
+    conf->opts.packet_type = (uint8_t)n;
     return (0);
 }
 
 static int  parse_interval(const char *val, t_conf *conf)
 {
+    if (!val || !*val)
+        return (-1);
     
     return (0);
 }

@@ -6,7 +6,7 @@
 /*   By: fwahl <fwahl@student.42heilbronn.de>       +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/09/06 06:51:10 by fwahl             #+#    #+#             */
-/*   Updated: 2025/09/10 02:29:15 by fwahl            ###   ########.fr       */
+/*   Updated: 2025/09/10 23:27:56 by fwahl            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -23,8 +23,7 @@
 # include <string.h>       // strerror, memset, memcpy, strlen
 # include <sys/socket.h>   // socket, setsockopt, sendto
 # include <sys/types.h>    // general types (pid_t, size_t, etc.)
-# include <netinet/in.h>   // ntohs, htons, sockaddr_in, IPPROTO_xxx
-# include <netinet/ip.h>   // struct ip (raw IP header)
+# include <netinet/in.h>   // ntohs, htons, sockaddr_in, IPPROTO_xxx // // struct ip (raw IP header)
 # include <netinet/ip_icmp.h> // struct icmp, ICMP_ECHO, etc.
 # include <arpa/inet.h>    // inet_ntop, inet_pton
 # include <netdb.h>        // getaddrinfo, getnameinfo, freeaddrinfo, gai_strerror

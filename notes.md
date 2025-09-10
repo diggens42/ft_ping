@@ -62,6 +62,20 @@ Handle various ICMP error types that might come back instead of echo replies, li
 The key challenges in your C implementation will be proper checksum calculation, handling the raw socket mechanics, and parsing the received packets correctly to extract timing information.
 
 
+
+### types
+
+Common ICMP Types You Might Use with --type (and their implications):
+While ping is primarily for echo requests, the --type option allows you to send other ICMP message types. Here are a few examples, though not all of them will necessarily elicit a "reply" in the way an echo request does:
+8 (Echo Request): This is the default and most common type used by ping. It's used to determine if a host is reachable and to measure round-trip time.
+0 (Echo Reply): This is the response to an Echo Request. You wouldn't typically send this as an initial message from ping.
+3 (Destination Unreachable): Indicates that a datagram could not be delivered to its destination. Various codes within this type specify why (e.g., network unreachable, host unreachable, port unreachable). Sending this with ping might not produce a direct "reply" but could be used for specific network testing.
+4 (Source Quench): Historically used to tell a sender to reduce its transmission rate. Less common in modern networks.
+5 (Redirect): Informs the sender that a better route exists for the destination.
+11 (Time Exceeded): Sent when a packet's Time To Live (TTL) reaches zero (e.g., by traceroute), or when a packet reassembly timeout occurs.
+13 (Timestamp Request): Used to request a timestamp from a host, allowing for time synchronization or more precise round-trip time measurements, considering the actual time it took for the packet to be processed.
+14 (Timestamp Reply): The response to a Timestamp Request.
+
 **inetutils2.0 ping list of options**
 
 Usage: ping [OPTION...] HOST ...
@@ -101,6 +115,9 @@ Options valid for all request types:
   -?, --help          display this help list
   --usage             display a short usage message
   -V, --version       print the program version
+
+
+
 
 
 sudo setcap cap_net_raw+ep ./ft_ping for socket creation error
