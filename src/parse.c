@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   parse.c                                            :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: fwahl <fwahl@student.42.fr>                +#+  +:+       +#+        */
+/*   By: fwahl <fwahl@student.42heilbronn.de>       +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/09/06 02:47:36 by fwahl             #+#    #+#             */
-/*   Updated: 2025/09/09 21:32:05 by fwahl            ###   ########.fr       */
+/*   Updated: 2025/09/10 02:41:12 by fwahl            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -43,11 +43,11 @@ static bool parse_help(const char *arg, t_conf *conf)
     return (false);
 }
 //-r, --ignore-routing in inetutils2.0 ping ref
-static bool parse_bypass_route(const char *arg, t_conf *conf)
+static bool parse_noroute(const char *arg, t_conf *conf)
 {
     if (ft_strcmp(arg, "-r") == 0 || ft_strcmp(arg, "--ignore-routing"))
     {
-        conf->bypass_route = true;
+        conf->noroute = true;
         return (true);
     }
     return (false);
@@ -167,7 +167,7 @@ static bool parse_no_arg_flag(const char *arg, t_conf *conf)
 {
     return (parse_verbose(arg, conf)
          || parse_help(arg, conf)
-         || parse_bypass_route(arg, conf));
+         || parse_noroute(arg, conf));
 }
 
 static int  parse_arg_flag(const char *arg, const char *next_arg, t_conf *conf)

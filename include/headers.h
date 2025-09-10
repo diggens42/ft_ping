@@ -6,7 +6,7 @@
 /*   By: fwahl <fwahl@student.42heilbronn.de>       +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/09/06 06:51:10 by fwahl             #+#    #+#             */
-/*   Updated: 2025/09/06 23:42:57 by fwahl            ###   ########.fr       */
+/*   Updated: 2025/09/10 02:29:15 by fwahl            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -31,6 +31,7 @@
 # include <signal.h>       // signal, alarm
 # include <sys/time.h>     // gettimeofday, struct timeval
 # include <errno.h>        // errno variable, error codes (EAGAIN, EINTR, etc.)
+# include <stddef.h>       // offsetof macro
 # include <stdbool.h>
 
 #endif

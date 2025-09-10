@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   socket.c                                           :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: fwahl <fwahl@student.42.fr>                +#+  +:+       +#+        */
+/*   By: fwahl <fwahl@student.42heilbronn.de>       +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/09/07 00:36:41 by fwahl             #+#    #+#             */
-/*   Updated: 2025/09/09 21:06:46 by fwahl            ###   ########.fr       */
+/*   Updated: 2025/09/10 02:41:12 by fwahl            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -49,12 +49,12 @@ bool    create_socket(t_conf *conf)
     }
 
     // -r flag
-    if (conf->bypass_route)
+    if (conf->noroute)
     {
         int val = 1;
         if (setsockopt(conf->socket_fd, SOL_SOCKET, SO_DONTROUTE, &val, sizeof(val)) < 0)
         {
-            fprintf(stderr, "create_socket: setsockopt bypass_route: %s\n", strerror(errno));
+            fprintf(stderr, "create_socket: setsockopt noroute: %s\n", strerror(errno));
             close(conf->socket_fd);
             return (false);
         }

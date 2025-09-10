@@ -6,7 +6,7 @@
 /*   By: fwahl <fwahl@student.42heilbronn.de>       +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/09/06 02:45:46 by fwahl             #+#    #+#             */
-/*   Updated: 2025/09/10 00:32:35 by fwahl            ###   ########.fr       */
+/*   Updated: 2025/09/10 02:41:12 by fwahl            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -28,7 +28,7 @@ static bool    init_conf(t_conf *conf)
 
     conf->flags.verbose = false;
     conf->flags.help = false;
-    conf->flags.bypass_route = false;
+    conf->flags.noroute = false;
     
     conf->opts.packet_size = PACKET_SIZE;
     conf->opts.timeout = 1;
