@@ -6,7 +6,7 @@
 /*   By: fwahl <fwahl@student.42heilbronn.de>       +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/09/06 15:05:29 by fwahl             #+#    #+#             */
-/*   Updated: 2025/09/10 03:24:04 by fwahl            ###   ########.fr       */
+/*   Updated: 2025/09/10 04:24:14 by fwahl            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -74,7 +74,7 @@ typedef struct s_opt_def
 {
     const char  *short_opt;     // e.g., "-v" (NULL if no short form)
     const char  *long_opt;      // e.g., "--verbose"
-    t_opt_type    type;         // OPT_NO_ARG or OPT_REQUIRED_ARG
-    size_t       *flag_ptr;      // For boolean flags (NULL for value options)
+    t_opt_type  type;         // OPT_NO_ARG or OPT_REQUIRED_ARG
+    size_t      flag_offset;      // For boolean flags (NULL for value options)
     int         (*parser)(const char *val, t_conf *conf);  // Custom parser function
 }   t_opt_def;
