@@ -6,7 +6,7 @@
 /*   By: fwahl <fwahl@student.42heilbronn.de>       +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/09/10 01:15:51 by fwahl             #+#    #+#             */
-/*   Updated: 2025/09/11 01:25:22 by fwahl            ###   ########.fr       */
+/*   Updated: 2025/09/11 02:29:32 by fwahl            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -35,8 +35,20 @@ static int  parse_ttl(const char *val, t_conf *conf)
 
 static int  parse_count(const char *val, t_conf *conf)
 {
+    char            *endptr;
+    unsigned long   n;
+    
     if (!val || !*val)
+    {
+        FT_ERROR();
         return (-1);
+    }
+    errno = 0;
+    n = ft_strtoul(val, &endptr, 10);
+    if (errno = ERANGE || val > UINT32_MAX)
+        conf->opts.count = UINT32_MAX;
+    else
+        conf->opts.count = (u_int32_t)n;
     return (0);
 }
 
@@ -63,9 +75,14 @@ static int  parse_type(const char *val, t_conf *conf)
 
 static int  parse_interval(const char *val, t_conf *conf)
 {
+    char    *endptr;
+    double  n;
+    
     if (!val || !*val)
         return (-1);
-    
+    n = ft_strtod(val, &endptr);
+    if (endptr != val && n >= 0.01)
+        conf->opts.interval = n;
     return (0);
 }
 

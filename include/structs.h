@@ -6,7 +6,7 @@
 /*   By: fwahl <fwahl@student.42heilbronn.de>       +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/09/06 15:05:29 by fwahl             #+#    #+#             */
-/*   Updated: 2025/09/11 01:45:30 by fwahl            ###   ########.fr       */
+/*   Updated: 2025/09/11 02:30:05 by fwahl            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -24,10 +24,10 @@ typedef struct s_opts
 {
     int                 timeout;                // timeout for reply (in ms?)
     int                 packet_size;            // size of ICMP payloads in bytes
-    uint8_t             packet_type;
+    uint8_t             packet_type;            // -t / --type=TYPE flag -->look notes for ICMP types
     uint8_t             ttl;                    // --ttl flag value --> time to live
+    uint32_t            count;                  // -c / --count=N flag value --> num of echo req to send 
     double              interval;               // -i / --interval flag --> interval of seconds in between packages sent
-    long long           count;                  // -c / --count=N flag value --> num of echo req to send 
 }   t_opts;
 
 typedef struct s_conf
