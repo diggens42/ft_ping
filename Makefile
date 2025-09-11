@@ -7,7 +7,7 @@ RM		=	rm -rf
 NAME	=	ft_ping
 SRCS	=	./src/main.c \
 			./src/init.c \
-			./src/parse.c \
+			./src/parser.c \
 			./src/resolve.c \
 			./src/socket.c \
 			./src/signal.c \

@@ -6,7 +6,7 @@
 /*   By: fwahl <fwahl@student.42heilbronn.de>       +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/09/10 01:15:51 by fwahl             #+#    #+#             */
-/*   Updated: 2025/09/11 02:29:32 by fwahl            ###   ########.fr       */
+/*   Updated: 2025/09/11 02:44:47 by fwahl            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -171,6 +171,22 @@ static int consume_opt(const t_opt_def *opt, const char *arg, const char *next_a
     }
 }
 
+static bool parse_target(const char *arg, t_conf *conf)
+{
+    if (!conf->tar)
+    {
+        conf->tar = ft_strdup(arg);
+        if (!conf->tar)
+        {
+            FT_ERROR();
+            return (false);
+        }
+        return (true);
+    }
+    fprintf(stderr, "ft_ping: extra operand '%s'\n", arg);
+    return (false);
+}
+
 bool    parse(int argc, char **argv, t_conf *conf)
 {
     for (int i = 1; i < argc; i++)
@@ -193,5 +209,17 @@ bool    parse(int argc, char **argv, t_conf *conf)
             
             i += (consumed - 1);
         }
+        else
+        {
+            if (!parse_target(argv[i], conf))
+                return (false);
+        }
     }
+    if (!conf->flags.help && !conf->tar)
+    {
+        fprintf(stderr, "ft_ping: usage error: Destination address required\n");
+        return (false);
+    }
+
+    return (true);
 }
