@@ -6,7 +6,7 @@
 /*   By: fwahl <fwahl@student.42heilbronn.de>       +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/09/10 01:15:51 by fwahl             #+#    #+#             */
-/*   Updated: 2025/09/11 02:44:47 by fwahl            ###   ########.fr       */
+/*   Updated: 2025/09/12 23:09:03 by fwahl            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -45,7 +45,7 @@ static int  parse_count(const char *val, t_conf *conf)
     }
     errno = 0;
     n = ft_strtoul(val, &endptr, 10);
-    if (errno = ERANGE || val > UINT32_MAX)
+    if (errno == ERANGE || val > UINT32_MAX)
         conf->opts.count = UINT32_MAX;
     else
         conf->opts.count = (u_int32_t)n;
@@ -122,18 +122,18 @@ static const t_opt_def   *get_opt(const char *arg)
     
     for (const t_opt_def *opt_def = opt_table; opt_def->long_opt || opt_def->short_opt; opt_def++)
     {
-        if (opt_def->short_opt && ft_strcmp(opt, opt_def->short_opt == 0) 
-            || opt_def->long_opt && ft_strcmp(opt, opt_def->long_opt) == 0)
+        if (opt_def->short_opt && ft_strcmp(opt, opt_def->short_opt == 0) ||
+            opt_def->long_opt  && ft_strcmp(opt, opt_def->long_opt) == 0)
         {
             if (opt != arg)
                 free(opt);
-            return (opt);
+            return (opt_def);
         }
         
     }
     
     if (opt != arg)
-    free(opt);
+        free(opt);
     return (NULL);
 }
 
@@ -194,7 +194,7 @@ bool    parse(int argc, char **argv, t_conf *conf)
         if (argv[i][0] == '-')
         {
             const t_opt_def *opt = get_opt(argv[i]);
-            if (!parse)
+            if (!opt)
             {
                 fprintf(stderr, "ft_ping: invalid option -- '%s'\n", argv[i]);
                 fprintf(stderr, "Try 'ft_ping --help' for more information.\n");

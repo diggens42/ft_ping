@@ -6,9 +6,10 @@
 /*   By: fwahl <fwahl@student.42heilbronn.de>       +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/09/06 15:05:29 by fwahl             #+#    #+#             */
-/*   Updated: 2025/09/11 02:30:05 by fwahl            ###   ########.fr       */
+/*   Updated: 2025/09/12 22:38:16 by fwahl            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
+
 
 #include "headers.h"
 #include "defines.h"
@@ -22,21 +23,21 @@ typedef struct s_flags
 
 typedef struct s_opts
 {
+    double              interval;               // -i / --interval flag --> interval of seconds in between packages sent
+    uint32_t            count;                  // -c / --count=N flag value --> num of echo req to send 
     int                 timeout;                // timeout for reply (in ms?)
     int                 packet_size;            // size of ICMP payloads in bytes
     uint8_t             packet_type;            // -t / --type=TYPE flag -->look notes for ICMP types
     uint8_t             ttl;                    // --ttl flag value --> time to live
-    uint32_t            count;                  // -c / --count=N flag value --> num of echo req to send 
-    double              interval;               // -i / --interval flag --> interval of seconds in between packages sent
 }   t_opts;
 
 typedef struct s_conf
 {
+    struct sockaddr_in  dest;                   // dest address -->  sendto()
     char                *tar;                   // hostname
     char                res_ip[INET_ADDRSTRLEN];// IP after DNS lookup
-    struct sockaddr_in  dest;                   // dest address -->  sendto()
-    int                 socket_fd;              // raw socket fd
     pid_t               pid;                    // PID for ICMP identifier
+    int                 socket_fd;              // raw socket fd
     t_flags             flags;
     t_opts              opts;
 }   t_conf;
@@ -44,13 +45,13 @@ typedef struct s_conf
 
 typedef struct s_stat
 {
-    int                 sent;       // nr of packages sent
-    int                 recv;       // nr of packages received
-    int                 lost;        // nr of errors/timouts
+    struct timeval      start;  // start time ping;
+    double              sum_rtt;  // sum of all round trip times for avg calc
     double              max_rtt;  // max round trip time (in ms)
     double              min_rtt;  // minimum round trip time (in ms)
-    double              sum_rtt;  // sum of all round trip times for avg calc
-    struct timeval      start;  // start time ping;
+    uint32_t            sent;       // nr of packages sent
+    uint32_t            recv;       // nr of packages received
+    uint32_t            lost;       // nr of errors/timouts
 }   t_stat;
 
 typedef struct s_packet
