@@ -6,7 +6,7 @@
 /*   By: fwahl <fwahl@student.42heilbronn.de>       +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/09/06 15:05:29 by fwahl             #+#    #+#             */
-/*   Updated: 2025/09/12 22:38:16 by fwahl            ###   ########.fr       */
+/*   Updated: 2025/09/13 00:28:50 by fwahl            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -14,19 +14,13 @@
 #include "headers.h"
 #include "defines.h"
 
-typedef struct s_flags
-{
-    bool                verbose;        // -v flag 
-    bool                help;           // -? / --help flag
-    bool                noroute;   // -r bypass route table
-}   t_flags;
-
 typedef struct s_opts
 {
     double              interval;               // -i / --interval flag --> interval of seconds in between packages sent
     uint32_t            count;                  // -c / --count=N flag value --> num of echo req to send 
-    int                 timeout;                // timeout for reply (in ms?)
-    int                 packet_size;            // size of ICMP payloads in bytes
+    uint32_t            timeout;                // timeout for reply (in ms?)
+    uint32_t            linger;                 // -W: per packet timeout in secs
+    uint16_t            packet_size;            // size of ICMP payloads in bytes
     uint8_t             packet_type;            // -t / --type=TYPE flag -->look notes for ICMP types
     uint8_t             ttl;                    // --ttl flag value --> time to live
 }   t_opts;
@@ -38,7 +32,7 @@ typedef struct s_conf
     char                res_ip[INET_ADDRSTRLEN];// IP after DNS lookup
     pid_t               pid;                    // PID for ICMP identifier
     int                 socket_fd;              // raw socket fd
-    t_flags             flags;
+    uint8_t             flags;                  // bitmask instead of bool flag struct
     t_opts              opts;
 }   t_conf;
 
@@ -77,6 +71,6 @@ typedef struct s_opt_def
     const char  *short_opt;     // e.g., "-v" (NULL if no short form)
     const char  *long_opt;      // e.g., "--verbose"
     t_opt_type  type;         // OPT_NO_ARG or OPT_REQUIRED_ARG
-    size_t      flag_offset;      // For boolean flags (NULL for value options)
+    uint8_t     flag_bit;      // which flag to set, 0 means not a flag
     int         (*parser)(const char *val, t_conf *conf);  // Custom parser function
 }   t_opt_def;

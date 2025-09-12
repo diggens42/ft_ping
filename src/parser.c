@@ -6,7 +6,7 @@
 /*   By: fwahl <fwahl@student.42heilbronn.de>       +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/09/10 01:15:51 by fwahl             #+#    #+#             */
-/*   Updated: 2025/09/12 23:09:03 by fwahl            ###   ########.fr       */
+/*   Updated: 2025/09/13 00:32:05 by fwahl            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -89,9 +89,9 @@ static int  parse_interval(const char *val, t_conf *conf)
 
 static const t_opt_def    opt_table[] = 
 {
-    {"-v", "--verbose",        OPT_NO_ARG, offsetof(t_conf, flags.verbose), NULL},
-    {"-?", "--help",           OPT_NO_ARG, offsetof(t_conf, flags.help),    NULL},
-    {"-r", "--ignore-routing", OPT_NO_ARG, offsetof(t_conf, flags.noroute), NULL},
+    {"-v", "--verbose",        OPT_NO_ARG, FLAG_VERBOSE, NULL},
+    {"-?", "--help",           OPT_NO_ARG, FLAG_HELP,    NULL},
+    {"-r", "--ignore-routing", OPT_NO_ARG, FLAG_NOROUTE, NULL},
     
     {NULL, "--ttl",        OPT_HAS_ARG, NULL, parse_ttl},
     {"-c", "--count",      OPT_HAS_ARG, NULL, parse_count},
@@ -141,11 +141,8 @@ static int consume_opt(const t_opt_def *opt, const char *arg, const char *next_a
 {
     if (opt->type == OPT_NO_ARG)
     {
-        if (opt->flag_offset)
-        {
-            bool *flag = (bool*)((char*)conf + opt->flag_offset);
-            *flag = true;
-        }
+        if (opt->flag_bit)
+           SET_FLAG(conf, opt->flag_bit); 
         return (1);
     }
     else
@@ -215,7 +212,7 @@ bool    parse(int argc, char **argv, t_conf *conf)
                 return (false);
         }
     }
-    if (!conf->flags.help && !conf->tar)
+    if (!HAS_FLAG(conf, FLAG_HELP) && !conf->tar)
     {
         fprintf(stderr, "ft_ping: usage error: Destination address required\n");
         return (false);

@@ -6,7 +6,7 @@
 /*   By: fwahl <fwahl@student.42heilbronn.de>       +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/09/07 00:36:41 by fwahl             #+#    #+#             */
-/*   Updated: 2025/09/10 02:41:12 by fwahl            ###   ########.fr       */
+/*   Updated: 2025/09/13 00:49:54 by fwahl            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -38,9 +38,9 @@ bool    create_socket(t_conf *conf)
     }
 
     // -ttl flag
-    if (conf->ttl > 0)
+    if (conf->opts.ttl > 0)
     {
-        if (setsockopt(conf->socket_fd, IPPROTO_IP, IP_TTL, &conf->ttl, sizeof(conf->ttl)) < 0)
+        if (setsockopt(conf->socket_fd, IPPROTO_IP, IP_TTL, &conf->opts.ttl, sizeof(conf->opts.ttl)) < 0)
         {
             fprintf(stderr, "create_socket: setsockopt ttl %s\n", strerror(errno));
             close(conf->socket_fd);
@@ -49,7 +49,7 @@ bool    create_socket(t_conf *conf)
     }
 
     // -r flag
-    if (conf->noroute)
+    if (HAS_FLAG(conf, FLAG_NOROUTE))
     {
         int val = 1;
         if (setsockopt(conf->socket_fd, SOL_SOCKET, SO_DONTROUTE, &val, sizeof(val)) < 0)

@@ -6,7 +6,7 @@
 /*   By: fwahl <fwahl@student.42heilbronn.de>       +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/09/06 02:45:39 by fwahl             #+#    #+#             */
-/*   Updated: 2025/09/12 22:15:41 by fwahl            ###   ########.fr       */
+/*   Updated: 2025/09/13 00:44:33 by fwahl            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -27,7 +27,7 @@ int main(int argc, char **argv)
         return (EXIT_FAILURE);
     }
 
-    if (ping.conf.flags.help)
+    if (HAS_FLAG(&ping.conf, FLAG_HELP))
     {
         print_help();
         //cleanup()

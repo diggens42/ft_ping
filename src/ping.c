@@ -6,7 +6,7 @@
 /*   By: fwahl <fwahl@student.42heilbronn.de>       +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/09/06 05:56:17 by fwahl             #+#    #+#             */
-/*   Updated: 2025/09/10 00:28:00 by fwahl            ###   ########.fr       */
+/*   Updated: 2025/09/13 01:04:33 by fwahl            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -48,16 +48,16 @@ static bool send_ping(t_conf *conf, t_stat *stat, int seq)
     // fill packet.data with timestamp and leftover bytes with pattern
     gettimeofday(&tv_now, NULL);
     memcpy(packet.data, &tv_now, sizeof(tv_now));
-    for (int i = sizeof(tv_now); i < conf->packet_size; i++)
+    for (int i = sizeof(tv_now); i < conf->opts.packet_size; i++)
         packet.data[i] = i;
 
-    packet.header.checksum = get_checksum(&packet, sizeof(packet.header) + conf->packet_size);
+    packet.header.checksum = get_checksum(&packet, sizeof(packet.header) + conf->opts.packet_size);
 
     //send packet
-    ssize_t nbytes = sendto(conf->socket_fd, &packet, sizeof(packet.header) + conf->packet_size, 0, (struct sockaddr *)&conf->dest, sizeof(conf->dest));
+    ssize_t nbytes = sendto(conf->socket_fd, &packet, sizeof(packet.header) + conf->opts.packet_size, 0, (struct sockaddr *)&conf->dest, sizeof(conf->dest));
     if (nbytes < 0)
     {
-        if (conf->verbose)
+        if (HAS_FLAG(conf, FLAG_VERBOSE))
             fprintf(stderr, "send_ping: sendto %s\n", strerror(errno));
         return (false);
     }
@@ -89,12 +89,12 @@ static bool recv_ping(t_conf *conf, t_stat *stat)
     {
         if (errno == EAGAIN || errno == EWOULDBLOCK)
         {
-            if (conf->verbose)
-                printf("recv_ping: req timout icmp_seq %d\n", stat->sent);
-            stat->err++;
+            if (HAS_FLAG(conf, FLAG_VERBOSE))
+                printf("recv_ping: req timeout icmp_seq %d\n", stat->sent);
+            stat->lost++;
             return (false);
         }
-        if (conf->verbose)
+        if (HAS_FLAG(conf, FLAG_VERBOSE))
             fprintf(stderr, "recv_ping: recvmsg %s\n", strerror(errno));
         return (false);
     }
@@ -131,7 +131,7 @@ static bool recv_ping(t_conf *conf, t_stat *stat)
                 nbytes-ip_hlen, conf->res_ip, ntohs(icmp->un.echo.sequence), ip->ttl, rtt);
         return (true);
     }
-    else if (conf->verbose)
+    else if (HAS_FLAG(conf, FLAG_VERBOSE))
     {
         //other icmp types with verbose flag
         if (icmp->type == ICMP_DEST_UNREACH)
@@ -153,7 +153,7 @@ void    ft_ping(t_ping *ping)
     {
         if (!send_ping(&ping->conf, &ping->stat, seq))
         {
-            if (ping->conf.verbose)
+            if (HAS_FLAG(&ping->conf, FLAG_VERBOSE))
                 fprintf(stderr, "ping loop: failed to send packet\n");
         }
 
