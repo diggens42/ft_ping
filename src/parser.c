@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   parser.c                                           :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: fwahl <fwahl@student.42heilbronn.de>       +#+  +:+       +#+        */
+/*   By: fwahl <fwahl@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/09/10 01:15:51 by fwahl             #+#    #+#             */
-/*   Updated: 2025/09/13 03:06:48 by fwahl            ###   ########.fr       */
+/*   Updated: 2025/09/13 19:34:07 by fwahl            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -16,7 +16,7 @@ static int parse_size(const char *val, t_conf *conf)
 {
     char *endptr;
     long n;
-    
+
     errno = 0;
     n = ft_strtol(val, &endptr, 10);
     // ICMP data size limits: 8 bytes min (timestamp), 65507 max (IP limit)
@@ -33,7 +33,7 @@ static int parse_timeout(const char *val, t_conf *conf)
 {
     char *endptr;
     long n;
-    
+
     errno = 0;
     n = ft_strtol(val, &endptr, 10);
     if (errno == ERANGE || n < 0 || n > UINT32_MAX || *endptr != '\0')
@@ -49,7 +49,7 @@ static int parse_linger(const char *val, t_conf *conf)
 {
     char *endptr;
     long n;
-    
+
     errno = 0;
     n = ft_strtol(val, &endptr, 10);
     if (errno == ERANGE || n < 0 || n > 3600 || *endptr != '\0')
@@ -65,7 +65,7 @@ static int  parse_ttl(const char *val, t_conf *conf)
 {
     char    *endptr;
     long    n;
-    
+
     if (!val || !*val)
     {
         FT_ERROR();
@@ -91,13 +91,13 @@ static int  parse_pattern(const char *val, t_conf *conf)
         return (-1);
     }
     //converthex string to bytes
-    
+
     for (size_t i = 0; i < len && conf->opts.pattern_len < 16; i += 2)
     {
         char hex[3] = {val[i], val[i + 1] ? val[i + 1] : '0', '\0'};
         char *endptr;
         long nbyte = ft_strtol(hex, &endptr, 16);
-        if (*endptr != '\0' || nbyte < 0 || nbyte > UINT8_MAX);
+        if (*endptr != '\0' || nbyte < 0 || nbyte > UINT8_MAX)
         {
             fprintf(stderr, "ft_ping: bad pattern\n");
             return (-1);
@@ -111,7 +111,7 @@ static int parse_tos(const char *val, t_conf *conf)
 {
     char *endptr;
     long n;
-    
+
     errno = 0;
     n = ft_strtol(val, &endptr, 10);
     if (errno == ERANGE || n < 0 || n > UINT8_MAX || *endptr != '\0')
@@ -127,7 +127,7 @@ static int  parse_count(const char *val, t_conf *conf)
 {
     char            *endptr;
     unsigned long   n;
-    
+
     if (!val || !*val)
     {
         FT_ERROR();
@@ -135,7 +135,7 @@ static int  parse_count(const char *val, t_conf *conf)
     }
     errno = 0;
     n = ft_strtoul(val, &endptr, 10);
-    if (errno == ERANGE || val > UINT32_MAX)
+    if (errno == ERANGE || n > UINT32_MAX)
         conf->opts.count = UINT32_MAX;
     else
         conf->opts.count = (u_int32_t)n;
@@ -146,7 +146,7 @@ static int  parse_type(const char *val, t_conf *conf)
 {
     char    *endptr;
     long    n;
-    
+
     if (!val || !*val)
     {
         FT_ERROR();
@@ -167,7 +167,7 @@ static int  parse_interval(const char *val, t_conf *conf)
 {
     char    *endptr;
     double  n;
-    
+
     if (!val || !*val)
         return (-1);
     n = ft_strtod(val, &endptr);
@@ -177,7 +177,7 @@ static int  parse_interval(const char *val, t_conf *conf)
 }
 
 
-static const t_opt_def opt_table[] = 
+static const t_opt_def opt_table[] =
 {
     {"-v", "--verbose",        false,  FLAG_VERBOSE, NULL},
     {"-?", "--help",           false,  FLAG_HELP,    NULL},
@@ -186,7 +186,7 @@ static const t_opt_def opt_table[] =
     {"-q", "--quiet",          false,  FLAG_QUIET,   NULL},
     {"-f", "--flood",          false,  FLAG_FLOOD,   NULL},
     {"-d", "--debug",          false,  FLAG_DEBUG,   NULL},
-    
+
     {"-c", "--count",          true, 0, parse_count},
     {"-i", "--interval",       true, 0, parse_interval},
     {"-s", "--size",           true, 0, parse_size},
@@ -196,7 +196,7 @@ static const t_opt_def opt_table[] =
     {"-t", "--type",           true, 0, parse_type},
     {"-T", "--tos",            true, 0, parse_tos},
     {NULL, "--ttl",            true, 0, parse_ttl},
-    
+
     {NULL, NULL, false, 0, NULL} // Sentinel
 };
 
@@ -218,19 +218,19 @@ static const t_opt_def   *get_opt(const char *arg)
         if (!opt)
             return (NULL);
     }
-    
+
     for (const t_opt_def *opt_def = opt_table; opt_def->long_opt || opt_def->short_opt; opt_def++)
     {
-        if (opt_def->short_opt && ft_strcmp(opt, opt_def->short_opt == 0) ||
-            opt_def->long_opt  && ft_strcmp(opt, opt_def->long_opt) == 0)
+        if ((opt_def->short_opt && ft_strcmp(opt, opt_def->short_opt) == 0) ||
+            (opt_def->long_opt  && ft_strcmp(opt, opt_def->long_opt) == 0))
         {
             if (opt != arg)
                 free(opt);
             return (opt_def);
         }
-        
+
     }
-    
+
     if (opt != arg)
         free(opt);
     return (NULL);
@@ -241,7 +241,7 @@ static int consume_opt(const t_opt_def *opt, const char *arg, const char *next_a
     if (!opt->has_arg)
     {
         if (opt->flag_bit)
-           SET_FLAG(conf, opt->flag_bit); 
+           SET_FLAG(conf, opt->flag_bit);
         return (1);
     }
     else
@@ -296,13 +296,13 @@ bool    parse(int argc, char **argv, t_conf *conf)
                 fprintf(stderr, "Try 'ft_ping --help' for more information.\n");
                 return (false);
             }
-            
+
             const char *next_arg = (i + 1 < argc) ? argv[i + 1] : NULL;
             int consumed = consume_opt(opt, argv[i], next_arg, conf);
 
             if (consumed < 0)
                 return (false);
-            
+
             i += (consumed - 1);
         }
         else
