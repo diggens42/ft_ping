@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   ft_ping.h                                          :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: fwahl <fwahl@student.42heilbronn.de>       +#+  +:+       +#+        */
+/*   By: fwahl <fwahl@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/09/06 02:45:57 by fwahl             #+#    #+#             */
-/*   Updated: 2025/09/13 03:58:16 by fwahl            ###   ########.fr       */
+/*   Updated: 2025/09/13 19:43:25 by fwahl            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -33,6 +33,7 @@ void    init_sig_handlers(void);
 void    ft_ping(t_ping *ping);
 
 void	print_help(void);
+void    print_ping_header(t_conf *conf);
 double	get_ms(struct timeval *sent, struct timeval *recv);
 uint16_t get_checksum(void *data, int len);
 
