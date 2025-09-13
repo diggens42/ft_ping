@@ -6,7 +6,7 @@
 /*   By: fwahl <fwahl@student.42heilbronn.de>       +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/09/06 02:45:57 by fwahl             #+#    #+#             */
-/*   Updated: 2025/09/10 01:33:56 by fwahl            ###   ########.fr       */
+/*   Updated: 2025/09/13 03:58:16 by fwahl            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -34,5 +34,6 @@ void    ft_ping(t_ping *ping);
 
 void	print_help(void);
 double	get_ms(struct timeval *sent, struct timeval *recv);
+uint16_t get_checksum(void *data, int len);
 
 #endif

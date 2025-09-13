@@ -6,30 +6,45 @@
 /*   By: fwahl <fwahl@student.42heilbronn.de>       +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/09/06 05:56:17 by fwahl             #+#    #+#             */
-/*   Updated: 2025/09/13 03:21:46 by fwahl            ###   ########.fr       */
+/*   Updated: 2025/09/13 04:40:50 by fwahl            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "../include/ft_ping.h"
 
-static uint16_t get_checksum(void *data, int len)
+static bool handle_count(t_conf *conf, int seq)
 {
-    uint16_t    *buf = data;
-    uint32_t    sum = 0;
+    return (conf->opts.count > 0 && seq >= conf->opts.count);
+}
+static bool handle_timeout(t_conf *conf, t_timing *timing)
+{
+    struct timeval now;
+    
+    if (conf->opts.timeout == 0)
+        return (false);
+    
+    gettimeofday(&now, NULL);
+    return (now.tv_sec - timing->start.tv_sec >= conf->opts.timeout);
+}
 
-    while (len > 1)
-    {
-        sum += *buf++;
-        len -= 2;
-    }
-
-    if (len == 1)
-        sum += *(uint8_t*)buf;
-
-    sum = (sum >> 16) + (sum & 0xFFFF);
-    sum += (sum >> 16);
-
-    return ((u_int16_t)(~sum));
+static void handle_interval(t_conf *conf, t_timing *timing)
+{
+    struct timeval  now, diff;
+    long            elapsed_us;
+    long            wait_us;
+    
+    if (!g_run || HAS_FLAG(conf, FLAG_FLOOD))
+        return;
+    
+    gettimeofday(&now, NULL);
+    ft_timesub(&diff, &now, &timing->last_send);
+    elapsed_us = ft_time_to_us(&diff);
+    wait_us = (conf->opts.interval * 1000000) - elapsed_us;
+    
+    if (wait_us > 0)
+        usleep(wait_us);
+    
+    gettimeofday(&timing->last_send, NULL);
 }
 
 static bool send_ping(t_conf *conf, t_stat *stat, int seq)
@@ -145,36 +160,33 @@ static bool recv_ping(t_conf *conf, t_stat *stat)
 }
 
 
-void    ft_ping(t_ping *ping)
+void ft_ping(t_ping *ping)
 {
-    int seq = 0;
-    struct timeval last_send, now, start_time;
-
-    gettimeofday(&start_time, NULL);
-    gettimeofday(&start_time, NULL);
+    int         seq = 0;
+    t_timing    timing;
+    
+    gettimeofday(&timing.start, NULL);
+    gettimeofday(&timing.last_send, NULL);
+    ping->stat.start = timing.start;
+    
     if (!HAS_FLAG(&ping->conf, FLAG_QUIET))
-        printf("PING %s (%s) %d(%d) bytes of data.\n", ping->conf.tar, ping->conf.res_ip, ping->conf.opts.packet_size, ping->conf.opts.packet_size + 28);
+        print_ping_header(&ping->conf);
     
     while (g_run)
     {
-        // -w flag
-        if (ping->conf.opts.timeout > 0)
-        {
-            gettimeofday(&now, NULL);
-            if (now.tv_sec - start_time.tv_sec >= &ping->conf.opts.timeout)
-                break ;
-        }
-        
+        if (handle_timeout(&ping->conf, &timing)) //-w flag
+            break;
         if (!send_ping(&ping->conf, &ping->stat, seq))
         {
             if (HAS_FLAG(&ping->conf, FLAG_VERBOSE))
-                fprintf(stderr, "ping loop: failed to send packet\n");
+                fprintf(stderr, "ping: failed to send packet\n");
         }
+        
         recv_ping(&ping->conf, &ping->stat);
         seq++;
-        
-        //-c flag
-        if (ping->conf.opts.count > 0 && seq >= ping->conf.opts.count)
+        if (handle_count(&ping->conf, seq)) //-c flag
             break;
+        handle_interval(&ping->conf, &timing); // -i flag
     }
 }
+

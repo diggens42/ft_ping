@@ -6,7 +6,7 @@
 /*   By: fwahl <fwahl@student.42heilbronn.de>       +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/09/06 15:05:29 by fwahl             #+#    #+#             */
-/*   Updated: 2025/09/13 02:49:27 by fwahl            ###   ########.fr       */
+/*   Updated: 2025/09/13 04:32:39 by fwahl            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -72,3 +72,10 @@ typedef struct s_opt_def
     uint8_t     flag_bit;      // which flag to set, 0 means not a flag
     int         (*parser)(const char *val, t_conf *conf);  // Custom parser function
 }   t_opt_def;
+
+typedef struct s_timing
+{
+    struct timeval  start;
+    struct timeval  last_send;
+    struct timeval  last_recv;
+} t_timing;
