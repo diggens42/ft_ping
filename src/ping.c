@@ -6,7 +6,7 @@
 /*   By: fwahl <fwahl@student.42heilbronn.de>       +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/09/06 05:56:17 by fwahl             #+#    #+#             */
-/*   Updated: 2025/09/13 01:04:33 by fwahl            ###   ########.fr       */
+/*   Updated: 2025/09/13 03:21:46 by fwahl            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -148,25 +148,33 @@ static bool recv_ping(t_conf *conf, t_stat *stat)
 void    ft_ping(t_ping *ping)
 {
     int seq = 0;
+    struct timeval last_send, now, start_time;
 
+    gettimeofday(&start_time, NULL);
+    gettimeofday(&start_time, NULL);
+    if (!HAS_FLAG(&ping->conf, FLAG_QUIET))
+        printf("PING %s (%s) %d(%d) bytes of data.\n", ping->conf.tar, ping->conf.res_ip, ping->conf.opts.packet_size, ping->conf.opts.packet_size + 28);
+    
     while (g_run)
     {
+        // -w flag
+        if (ping->conf.opts.timeout > 0)
+        {
+            gettimeofday(&now, NULL);
+            if (now.tv_sec - start_time.tv_sec >= &ping->conf.opts.timeout)
+                break ;
+        }
+        
         if (!send_ping(&ping->conf, &ping->stat, seq))
         {
             if (HAS_FLAG(&ping->conf, FLAG_VERBOSE))
                 fprintf(stderr, "ping loop: failed to send packet\n");
         }
-
         recv_ping(&ping->conf, &ping->stat);
         seq++;
-
-        // -n flag not sure though
-        // if (seq >= ping->conf.count)
-        //     break ;
-        // if (g_run)
-        // {
-        //     alarm(PING_INTERVAL);
-        //     pause(); // not sure if allowed checking later
-        // }
+        
+        //-c flag
+        if (ping->conf.opts.count > 0 && seq >= ping->conf.opts.count)
+            break;
     }
 }
