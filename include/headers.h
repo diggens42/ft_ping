@@ -6,17 +6,17 @@
 /*   By: fwahl <fwahl@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/09/06 06:51:10 by fwahl             #+#    #+#             */
-/*   Updated: 2025/09/13 19:42:26 by fwahl            ###   ########.fr       */
+/*   Updated: 2025/09/13 19:46:35 by fwahl            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #ifndef HEADERS_H
 # define HEADERS_H
 
-#ifndef _POSIX_C_SOURCE
+// #ifndef _POSIX_C_SOURCE
 // # define _POSIX_C_SOURCE 200112L
-# define _POSIX_C_SOURCE 199309L
-#endif
+// # define _POSIX_C_SOURCE 199309L
+// #endif
 
 # include <stdio.h>        // printf, fprintf, sprintf, snprintf, perror
 # include <stdlib.h>       // exit, malloc, free
@@ -34,5 +34,6 @@
 # include <errno.h>        // errno variable, error codes (EAGAIN, EINTR, etc.)
 # include <stddef.h>       // offsetof macro
 # include <stdbool.h>
+# include <time.h>
 
 #endif
