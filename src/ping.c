@@ -3,14 +3,66 @@
 /*                                                        :::      ::::::::   */
 /*   ping.c                                             :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: fwahl <fwahl@student.42.fr>                +#+  +:+       +#+        */
+/*   By: fwahl <fwahl@student.42heilbronn.de>       +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/09/06 05:56:17 by fwahl             #+#    #+#             */
-/*   Updated: 2025/09/13 19:39:28 by fwahl            ###   ########.fr       */
+/*   Updated: 2025/09/13 21:26:32 by fwahl            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "../include/ft_ping.h"
+
+static void handle_quiet(t_conf *conf, t_stat *stat, ssize_t nbytes, int ip_hlen, struct icmphdr *icmp, struct iphdr *ip, double rtt)
+{
+    if (HAS_FLAG(conf, FLAG_QUIET))
+        return ;
+    printf("%ld bytes from %s: icmp_seq=%d ttl=%d time=%.1f ms\n",
+        nbytes - ip_hlen, conf->res_ip, 
+        ntohs(icmp->un.echo.sequence), ip->ttl, rtt);
+}
+
+static void handle_verbose(t_conf *conf, struct icmphdr *icmp, struct sockaddr_in *from)
+{
+    if (!HAS_FLAG(conf, FLAG_VERBOSE))
+        return ;
+    char addr_str[INET_ADDRSTRLEN];
+    inet_ntop(AF_INET, &from->sin_addr, addr_str, sizeof(addr_str));
+    
+    switch (icmp->type)
+    {
+        case (ICMP_DEST_UNREACH):
+            printf("From %s: Destination Unreachable\n", addr_str);
+            break;
+        case (ICMP_TIME_EXCEEDED):
+            printf("From %s: Time to live exceeded\n", addr_str);
+            break;
+        case (ICMP_SOURCE_QUENCH):
+            printf("From %s: Source Quench\n", addr_str);
+            break;
+        case (ICMP_REDIRECT):
+            printf("From %s: Redirect (type=%d, code=%d)\n", 
+                   addr_str, icmp->type, icmp->code);
+            break;
+        default:
+            printf("From %s: type=%d code=%d\n", 
+                   addr_str, icmp->type, icmp->code);
+    }
+}
+
+static void handle_numeric(t_conf *conf, struct sockaddr_in *from, char *display_addr, size_t addr_len)
+{
+    if (HAS_FLAG(conf, FLAG_NUMERIC))
+        inet_ntop(AF_INET, &from->sin_addr, display_addr, addr_len);
+    else
+    {
+        struct hostent *host = gethostbyaddr(&from->sin_addr, sizeof(from->sin_addr), AF_INET);
+        if (host && host->h_name)
+            ft_strlcpy(display_addr, host->h_name, addr_len);
+        else
+            inet_ntop(AF_INET, &from->sin_addr, display_addr, addr_len);
+    }
+}
+
 
 static bool handle_count(t_conf *conf, uint32_t seq)
 {
@@ -88,7 +140,7 @@ static bool recv_ping(t_conf *conf, t_stat *stat)
     struct iovec        iov;
     struct msghdr       msg;
     struct sockaddr_in  from;
-    struct timeval      now, *sent_tv;
+    struct timeval      now, *sent_tv, diff;
 
 
     ft_memset(&msg, 0, sizeof(msg));
@@ -126,7 +178,8 @@ static bool recv_ping(t_conf *conf, t_stat *stat)
     {
         stat->recv++;
         sent_tv = (struct timeval *)(buf + ip_hlen +sizeof(struct icmphdr));
-        double rtt = get_ms(sent_tv, &now);
+        ft_time_substract(&diff, &now, sent_tv);
+        double rtt = ft_time_to_ms(&diff);
         if (stat->recv == 1)
         {
             stat->min_rtt = rtt;
@@ -140,22 +193,11 @@ static bool recv_ping(t_conf *conf, t_stat *stat)
                 stat->max_rtt = rtt;
         }
         stat->sum_rtt += rtt;
-
-        //reply
-        printf("%ld bytes from %s: icmp_seq=%d ttl=%d time=%.1f ms\n",
-                nbytes-ip_hlen, conf->res_ip, ntohs(icmp->un.echo.sequence), ip->ttl, rtt);
+        handle_quiet(conf, stat, nbytes, ip_hlen, icmp, ip, rtt);
         return (true);
     }
-    else if (HAS_FLAG(conf, FLAG_VERBOSE))
-    {
-        //other icmp types with verbose flag
-        if (icmp->type == ICMP_DEST_UNREACH)
-            printf("From %s: dest unreachable\n", inet_ntoa(from.sin_addr));
-        else if (icmp->type == ICMP_TIME_EXCEEDED)
-            printf("From %s: ttl exceeded\n", inet_ntoa(from.sin_addr));
-        else
-            printf("From %s: type=%d code=%d\n", inet_ntoa(from.sin_addr),icmp->type, icmp->code);
-    }
+    else
+        handle_verbose(conf, icmp, &from);
     return (false);
 }
 
