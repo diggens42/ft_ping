@@ -6,7 +6,7 @@
 /*   By: fwahl <fwahl@student.42heilbronn.de>       +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/09/06 15:05:29 by fwahl             #+#    #+#             */
-/*   Updated: 2025/09/13 01:34:56 by fwahl            ###   ########.fr       */
+/*   Updated: 2025/09/13 02:49:27 by fwahl            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -36,7 +36,7 @@ typedef struct s_conf
     char                hostname[256];          // resolved hostname
     pid_t               pid;                    // PID for ICMP identifier
     int                 socket_fd;              // raw socket fd
-    uint8_t             flags;                  // bitmask instead of bool flag struct
+    uint8_t             flags;                  // 8byte bitmask instead of bool flag struct
     t_opts              opts;
 }   t_conf;
 
@@ -52,23 +52,17 @@ typedef struct s_stat
     uint32_t            lost;       // nr of errors/timouts
 }   t_stat;
 
-typedef struct s_packet
-{
-    struct icmphdr      header; // ICMP header (type, code, checksum, id, sequence)
-    char                data[PACKET_SIZE]; //ICMP payload
-}   t_packet;
-
 typedef struct s_ping
 {
     t_conf  conf;
     t_stat  stat;
 }   t_ping;
 
-typedef enum e_opt_type
+typedef struct s_packet
 {
-    OPT_NO_ARG,
-    OPT_HAS_ARG,
-} t_opt_type;
+    struct icmphdr      header; // ICMP header (type, code, checksum, id, sequence)
+    char                data[PACKET_SIZE]; //ICMP payload
+}   t_packet;
 
 typedef struct s_opt_def
 {
