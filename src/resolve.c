@@ -6,7 +6,7 @@
 /*   By: fwahl <fwahl@student.42heilbronn.de>       +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/09/07 00:34:39 by fwahl             #+#    #+#             */
-/*   Updated: 2025/09/09 01:02:24 by fwahl            ###   ########.fr       */
+/*   Updated: 2025/09/13 03:03:27 by fwahl            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -29,13 +29,26 @@ bool	resolve_hostname(t_conf *conf)
 	
 	ft_memcpy(&conf->dest, addr_list->ai_addr, sizeof(struct sockaddr_in));
 	
-    //convert ip to str
+    //store resolved ip
 	if (!inet_ntop(AF_INET, &conf->dest.sin_addr, conf->res_ip, INET_ADDRSTRLEN))
 	{
 		fprintf(stderr, "resolve_hostname: inet_ntop failed\n");
 		freeaddrinfo(addr_list);
 		return false;
 	}
+
+	if (!HAS_FLAG(conf, FLAG_NUMERIC))
+	{
+		struct hostent *host = gethostbyaddr(&conf->dest.sin_addr, sizeof(&conf->dest.sin_addr), AF_INET);
+		if (host && host->h_name)
+			ft_strlcpy(conf->hostname, host->h_name, sizeof(conf->hostname));
+		else
+			ft_strlcpy(conf->hostname, conf->res_ip, sizeof(conf->hostname));
+		
+		
+	}
+	else
+		ft_strlcpy(conf->hostname, conf->res_ip, sizeof(conf->hostname));
 
 	freeaddrinfo(addr_list);
 	return (true);
