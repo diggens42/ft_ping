@@ -6,7 +6,7 @@
 /*   By: fwahl <fwahl@student.42heilbronn.de>       +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/09/06 02:45:46 by fwahl             #+#    #+#             */
-/*   Updated: 2025/09/13 02:18:15 by fwahl            ###   ########.fr       */
+/*   Updated: 2025/09/14 23:21:04 by fwahl            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -20,7 +20,7 @@ static bool    init_conf(t_conf *conf)
     ft_memset(conf, 0, sizeof(t_conf));
     ft_memset(conf->res_ip, 0, INET_ADDRSTRLEN);
     ft_memset(conf->hostname, 0, HOSTNAME_MAXLEN);
-    conf->tar = NULL;
+    ft_memset(conf->tar, 0, sizeof(conf->tar));
     conf->dest.sin_family = AF_UNSPEC; //must set = AF_INET later!!
     conf->dest.sin_port = 0;
     conf->dest.sin_addr.s_addr = INADDR_ANY; //must set later
@@ -28,7 +28,7 @@ static bool    init_conf(t_conf *conf)
     conf->pid = getpid();
 
     conf->flags = 0;
-    conf->opts.packet_size = PACKET_SIZE;
+    conf->opts.packet_size = PACKET_SIZE_DEFAULT;
     conf->opts.packet_type = ICMP_ECHO;
     conf->opts.timeout = 1;
     conf->opts.interval = 1;

@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   parser.c                                           :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: fwahl <fwahl@student.42.fr>                +#+  +:+       +#+        */
+/*   By: fwahl <fwahl@student.42heilbronn.de>       +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/09/10 01:15:51 by fwahl             #+#    #+#             */
-/*   Updated: 2025/09/13 19:34:07 by fwahl            ###   ########.fr       */
+/*   Updated: 2025/09/14 23:24:51 by fwahl            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -269,14 +269,14 @@ static int consume_opt(const t_opt_def *opt, const char *arg, const char *next_a
 
 static bool parse_target(const char *arg, t_conf *conf)
 {
-    if (!conf->tar)
+    if (conf->tar[0] == '\0')
     {
-        conf->tar = ft_strdup(arg);
-        if (!conf->tar)
+        if (ft_strlen(arg) >= sizeof(conf->tar))
         {
-            FT_ERROR();
+            fprintf(stderr, "ft_ping: hostname too long\n");
             return (false);
         }
+        ft_strlcpy(conf->tar, arg, sizeof(conf->tar));
         return (true);
     }
     fprintf(stderr, "ft_ping: extra operand '%s'\n", arg);

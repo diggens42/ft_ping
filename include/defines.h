@@ -6,7 +6,7 @@
 /*   By: fwahl <fwahl@student.42heilbronn.de>       +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/09/06 06:58:55 by fwahl             #+#    #+#             */
-/*   Updated: 2025/09/13 02:17:43 by fwahl            ###   ########.fr       */
+/*   Updated: 2025/09/14 23:12:36 by fwahl            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -30,7 +30,7 @@
 #define TOGGLE_FLAG(conf, flag) ((conf)->flags ^= (flag))  // bitiwse XOR turns on/off flag 
 
 #define HOSTNAME_MAXLEN 256
-#define PACKET_SIZE 56  // packet_size = 56 → gives 64-byte ICMP messages
+#define PACKET_SIZE_DEFAULT 56  // packet_size = 56 → gives 64-byte ICMP messages
 #define PING_INTERVAL 1
 #define EXIT_ERROR 2
 #define PARSE_ERROR -1

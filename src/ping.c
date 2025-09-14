@@ -6,7 +6,7 @@
 /*   By: fwahl <fwahl@student.42heilbronn.de>       +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/09/06 05:56:17 by fwahl             #+#    #+#             */
-/*   Updated: 2025/09/14 18:14:48 by fwahl            ###   ########.fr       */
+/*   Updated: 2025/09/14 23:17:33 by fwahl            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -124,25 +124,26 @@ static void handle_pattern(t_conf *conf, char *data, int offset)
 
 static bool send_ping(t_conf *conf, t_stat *stat, int seq)
 {
-    t_packet        packet;
-    struct timeval  tv_now;
-
     //init packet & icmp header
+    size_t      packet_size = sizeof(struct icmphdr) + conf->opts.packet_size;
+    t_packet    *packet = malloc(packet_size);
     ft_memset(&packet, 0, sizeof(packet));
-    packet.header.type = ICMP_ECHO;
-    packet.header.code = 0;
-    packet.header.un.echo.id = htons(conf->pid);
-    packet.header.un.echo.sequence = htons(seq);
-    packet.header.checksum = 0;
-
+    packet->header.type = ICMP_ECHO;
+    packet->header.code = 0;
+    packet->header.un.echo.id = htons(conf->pid);
+    packet->header.un.echo.sequence = htons(seq);
+    packet->header.checksum = 0;
+    
     // fill packet.data with timestamp and leftover bytes with pattern (-p / --pattern=PATTERN flag or default)
+    struct timeval  tv_now;
     gettimeofday(&tv_now, NULL);
-    ft_memcpy(packet.data, &tv_now, sizeof(tv_now));
-    handle_pattern(conf, packet.data, sizeof(tv_now));
-    packet.header.checksum = get_checksum(&packet, sizeof(packet.header) + conf->opts.packet_size);
+    ft_memcpy(packet->data, &tv_now, sizeof(tv_now));
+    handle_pattern(conf, packet->data, sizeof(tv_now));
+    packet->header.checksum = get_checksum(&packet, sizeof(packet->header) + conf->opts.packet_size);
 
     //send packet
-    ssize_t nbytes = sendto(conf->socket_fd, &packet, sizeof(packet.header) + conf->opts.packet_size, 0, (struct sockaddr *)&conf->dest, sizeof(conf->dest));
+    ssize_t nbytes = sendto(conf->socket_fd, &packet, sizeof(packet->header) + conf->opts.packet_size, 0, (struct sockaddr *)&conf->dest, sizeof(conf->dest));
+    free(packet);
     if (nbytes < 0)
     {
         if (HAS_FLAG(conf, FLAG_VERBOSE))
@@ -150,7 +151,6 @@ static bool send_ping(t_conf *conf, t_stat *stat, int seq)
         return (false);
     }
     stat->sent++;
-
     return (true);
 }
 

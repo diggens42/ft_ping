@@ -6,7 +6,7 @@
 /*   By: fwahl <fwahl@student.42heilbronn.de>       +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/09/07 00:34:39 by fwahl             #+#    #+#             */
-/*   Updated: 2025/09/13 03:03:27 by fwahl            ###   ########.fr       */
+/*   Updated: 2025/09/14 23:25:53 by fwahl            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -39,7 +39,7 @@ bool	resolve_hostname(t_conf *conf)
 
 	if (!HAS_FLAG(conf, FLAG_NUMERIC))
 	{
-		struct hostent *host = gethostbyaddr(&conf->dest.sin_addr, sizeof(&conf->dest.sin_addr), AF_INET);
+		struct hostent *host = gethostbyaddr(&conf->dest.sin_addr, sizeof(conf->dest.sin_addr), AF_INET);
 		if (host && host->h_name)
 			ft_strlcpy(conf->hostname, host->h_name, sizeof(conf->hostname));
 		else
