@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   ft_ping.h                                          :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: fwahl <fwahl@student.42.fr>                +#+  +:+       +#+        */
+/*   By: fwahl <fwahl@student.42heilbronn.de>       +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/09/06 02:45:57 by fwahl             #+#    #+#             */
-/*   Updated: 2025/09/13 19:43:25 by fwahl            ###   ########.fr       */
+/*   Updated: 2025/09/14 23:42:41 by fwahl            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -32,6 +32,7 @@ bool    create_socket(t_conf *conf);
 void    init_sig_handlers(void);
 void    ft_ping(t_ping *ping);
 
+void	print_stats(t_ping *ping);
 void	print_help(void);
 void    print_ping_header(t_conf *conf);
 double	get_ms(struct timeval *sent, struct timeval *recv);

@@ -6,7 +6,7 @@
 /*   By: fwahl <fwahl@student.42heilbronn.de>       +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/09/07 00:34:39 by fwahl             #+#    #+#             */
-/*   Updated: 2025/09/14 23:25:53 by fwahl            ###   ########.fr       */
+/*   Updated: 2025/09/14 23:33:18 by fwahl            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -34,7 +34,7 @@ bool	resolve_hostname(t_conf *conf)
 	{
 		fprintf(stderr, "resolve_hostname: inet_ntop failed\n");
 		freeaddrinfo(addr_list);
-		return false;
+		return (false);
 	}
 
 	if (!HAS_FLAG(conf, FLAG_NUMERIC))

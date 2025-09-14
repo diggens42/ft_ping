@@ -6,7 +6,7 @@
 /*   By: fwahl <fwahl@student.42heilbronn.de>       +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/09/06 02:45:39 by fwahl             #+#    #+#             */
-/*   Updated: 2025/09/13 00:44:33 by fwahl            ###   ########.fr       */
+/*   Updated: 2025/09/14 23:46:19 by fwahl            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -19,38 +19,31 @@ int main(int argc, char **argv)
     t_ping ping;
 
     if (!init(&ping))
-        return (EXIT_ERROR);
+        return (EXIT_FAILURE);
 
     if (!parse(argc, argv, &ping.conf))
-    {
-        //cleanup()
         return (EXIT_FAILURE);
-    }
 
     if (HAS_FLAG(&ping.conf, FLAG_HELP))
     {
         print_help();
-        //cleanup()
         return (EXIT_SUCCESS);
     }
 
     if (!resolve_hostname(&ping.conf))
-    {
-        //cleanup()
         return (EXIT_FAILURE);
-    }
-
+    
     if (!create_socket(&ping.conf))
-    {
-        //cleanup()
         return (EXIT_FAILURE);
-    }
+    
+    init_sig_handlers();
 
-    // init_sig_handlers();
-    gettimeofday(&ping.stat.start, NULL);
     ft_ping(&ping);
+    
+    print_stats(&ping);
 
-    //cleanup()
+    if (ping.conf.socket_fd >= 0)
+        close(ping.conf.socket_fd);
 
-    return (EXIT_SUCCESS);
+    return (ping.stat.recv > 0 ? EXIT_SUCCESS : EXIT_FAILURE);
 }

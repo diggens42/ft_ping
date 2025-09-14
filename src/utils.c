@@ -6,7 +6,7 @@
 /*   By: fwahl <fwahl@student.42heilbronn.de>       +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/09/06 02:45:50 by fwahl             #+#    #+#             */
-/*   Updated: 2025/09/13 04:40:19 by fwahl            ###   ########.fr       */
+/*   Updated: 2025/09/14 23:28:37 by fwahl            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -24,6 +24,35 @@ void	print_help(void)
 	printf("\n");
 	printf("  -?, --help          display this help list\n");
 	
+}
+
+void print_stats(t_ping *ping)
+{
+    struct timeval end, diff;
+    gettimeofday(&end, NULL);
+    ft_time_substract(&diff, &end, &ping->stat.start);
+    long duration_ms = ft_time_to_ms(&diff);
+    
+    printf("\n--- %s ping statistics ---\n", ping->conf.tar);
+    
+    uint32_t lost = ping->stat.sent - ping->stat.recv;
+    float loss_percent = ping->stat.sent > 0 ? (100.0 * lost / ping->stat.sent) : 0;
+    
+    printf("%d packets transmitted, %d received, ", 
+           ping->stat.sent, ping->stat.recv);
+    
+    if (ping->stat.lost > 0)
+        printf("+%d errors, ", ping->stat.lost);
+    
+    printf("%.0f%% packet loss, time %ldms\n", loss_percent, duration_ms);
+    
+    if (ping->stat.recv > 0)
+    {
+        double avg_rtt = ping->stat.sum_rtt / ping->stat.recv;
+        
+        printf("rtt min/avg/max = %.3f/%.3f/%.3f ms\n",
+               ping->stat.min_rtt, avg_rtt, ping->stat.max_rtt);
+    }
 }
 
 void print_ping_header(t_conf *conf)

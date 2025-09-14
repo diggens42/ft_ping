@@ -6,7 +6,7 @@
 /*   By: fwahl <fwahl@student.42heilbronn.de>       +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/09/10 01:15:51 by fwahl             #+#    #+#             */
-/*   Updated: 2025/09/14 23:24:51 by fwahl            ###   ########.fr       */
+/*   Updated: 2025/09/14 23:36:58 by fwahl            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -23,7 +23,7 @@ static int parse_size(const char *val, t_conf *conf)
     if (errno == ERANGE || n < 8 || n > 65507 || *endptr != '\0')
     {
         fprintf(stderr, "ft_ping: packet size %s is invalid\n", val);
-        return (-1);
+        return (PARSE_ERROR);
     }
     conf->opts.packet_size = (uint16_t)n;
     return (0);
@@ -39,7 +39,7 @@ static int parse_timeout(const char *val, t_conf *conf)
     if (errno == ERANGE || n < 0 || n > UINT32_MAX || *endptr != '\0')
     {
         fprintf(stderr, "ft_ping: bad timeout value\n");
-        return (-1);
+        return (PARSE_ERROR);
     }
     conf->opts.timeout = (uint32_t)n;
     return (0);
@@ -55,7 +55,7 @@ static int parse_linger(const char *val, t_conf *conf)
     if (errno == ERANGE || n < 0 || n > 3600 || *endptr != '\0')
     {
         fprintf(stderr, "ft_ping: bad linger time\n");
-        return (-1);
+        return (PARSE_ERROR);
     }
     conf->opts.linger = (uint32_t)n;
     return (0);
@@ -69,14 +69,14 @@ static int  parse_ttl(const char *val, t_conf *conf)
     if (!val || !*val)
     {
         FT_ERROR();
-        return (-1);
+        return (PARSE_ERROR);
     }
     errno = 0;
     n = ft_strtol(val, &endptr, 10);
     if (errno == ERANGE || n < 0 || n > UINT8_MAX || *endptr != '\0')
     {
         FT_ERROR();
-        return (-1);
+        return (PARSE_ERROR);
     }
     conf->opts.ttl = (u_int8_t)n;
     return (0);
@@ -88,7 +88,7 @@ static int  parse_pattern(const char *val, t_conf *conf)
     if (len > 32) // 16 bytes --> 32 hex chars
     {
         fprintf(stderr, "ft_ping: pattern too long (max 16 bytes)\n");
-        return (-1);
+        return (PARSE_ERROR);
     }
     //converthex string to bytes
 
@@ -100,7 +100,7 @@ static int  parse_pattern(const char *val, t_conf *conf)
         if (*endptr != '\0' || nbyte < 0 || nbyte > UINT8_MAX)
         {
             fprintf(stderr, "ft_ping: bad pattern\n");
-            return (-1);
+            return (PARSE_ERROR);
         }
         conf->opts.pattern[conf->opts.pattern_len++] = (uint8_t)nbyte;
     }
@@ -117,7 +117,7 @@ static int parse_tos(const char *val, t_conf *conf)
     if (errno == ERANGE || n < 0 || n > UINT8_MAX || *endptr != '\0')
     {
         fprintf(stderr, "ft_ping: bad tos value\n");
-        return (-1);
+        return (PARSE_ERROR);
     }
     conf->opts.tos = (uint8_t)n;
     return (0);
@@ -131,7 +131,7 @@ static int  parse_count(const char *val, t_conf *conf)
     if (!val || !*val)
     {
         FT_ERROR();
-        return (-1);
+        return (PARSE_ERROR);
     }
     errno = 0;
     n = ft_strtoul(val, &endptr, 10);
@@ -150,14 +150,14 @@ static int  parse_type(const char *val, t_conf *conf)
     if (!val || !*val)
     {
         FT_ERROR();
-        return (-1);
+        return (PARSE_ERROR);
     }
     errno = 0;
     n = ft_strtol(val, &endptr, 10);
     if (errno == ERANGE || n < 0 || n > UINT8_MAX || !ft_is_icmp_type(n) || *endptr != '\0')
     {
         FT_ERROR();
-        return (-1);
+        return (PARSE_ERROR);
     }
     conf->opts.packet_type = (uint8_t)n;
     return (0);
@@ -169,7 +169,7 @@ static int  parse_interval(const char *val, t_conf *conf)
     double  n;
 
     if (!val || !*val)
-        return (-1);
+        return (PARSE_ERROR);
     n = ft_strtod(val, &endptr);
     if (endptr != val && n >= 0.01)
         conf->opts.interval = n;

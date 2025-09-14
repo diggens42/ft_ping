@@ -6,7 +6,7 @@
 /*   By: fwahl <fwahl@student.42heilbronn.de>       +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/09/07 00:36:41 by fwahl             #+#    #+#             */
-/*   Updated: 2025/09/14 18:59:13 by fwahl            ###   ########.fr       */
+/*   Updated: 2025/09/14 23:30:57 by fwahl            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -73,9 +73,6 @@ static bool handle_noroute(t_conf *conf)
 
 bool    create_socket(t_conf *conf)
 {
-    struct timeval  tv;
-
-    //create socket
     conf->socket_fd = socket(AF_INET, SOCK_RAW, IPPROTO_ICMP);
     if (conf->socket_fd < 0)
     {
