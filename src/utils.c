@@ -6,24 +6,45 @@
 /*   By: fwahl <fwahl@student.42heilbronn.de>       +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/09/06 02:45:50 by fwahl             #+#    #+#             */
-/*   Updated: 2025/09/14 23:28:37 by fwahl            ###   ########.fr       */
+/*   Updated: 2025/09/14 23:49:44 by fwahl            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "../include/ft_ping.h"
 
-void	print_help(void)
+void print_help(void)
 {
-	printf("\nUsage: ft+ping [OPTION...] HOST ...\n");
-	printf("Send ICMP ECHO_REQUEST packets to network hosts.\n\n");
-	printf("Options valid for all request types:\n");
-	printf("  -c, --count=COUNT   stop after sending (and receiving) COUNT ECHO_RESPONSE packets\n");
-	printf("  -r, --ignore-routing\n");
-    printf("                       bypass normal routing and send directly to a host on an attached network\n");
-	printf("  -v, --verbose       verbose output; lists non-ECHO_RESPONSE ICMP packets received\n");
-	printf("\n");
-	printf("  -?, --help          display this help list\n");
-	
+    printf("Usage: ft_ping [OPTION...] HOST ...\n");
+    printf("Send ICMP ECHO_REQUEST packets to network hosts.\n\n");
+    
+    printf("Options controlling ICMP request types:\n");
+    printf("  -t, --type=TYPE     send TYPE packets\n\n");
+    
+    printf("Options valid for all request types:\n");
+    printf("  -c, --count=COUNT   stop after sending (and receiving) COUNT ECHO_RESPONSE\n");
+    printf("                       packets\n");
+    printf("  -d, --debug         set the SO_DEBUG option on the socket being used\n");
+    printf("  -i, --interval=WAIT wait WAIT seconds between sending each packet\n");
+    printf("  -n, --numeric       numeric output only; no attempt will be made to lookup\n");
+    printf("                       symbolic names for host addresses\n");
+    printf("  -p, --pattern=PATTERN\n");
+    printf("                       specify up to 16 \"pad\" bytes to fill out the packet\n");
+    printf("                       you send\n");
+    printf("  -q, --quiet         quiet output; only summary is printed at start and\n");
+    printf("                       finish\n");
+    printf("  -r, --ignore-routing\n");
+    printf("                       bypass normal routing and send directly to a host on\n");
+    printf("                       an attached network\n");
+    printf("  -s, --size=PACKETSIZE\n");
+    printf("                       specify the number of data bytes to send\n");
+    printf("  -v, --verbose       verbose output; lists non-ECHO_RESPONSE ICMP packets\n");
+    printf("                       received\n");
+    printf("  --ttl=N             set packet time-to-live to N\n");
+    printf("  -T, --tos=NUM       set Type-of-Service (TOS) to NUM\n");
+    printf("  -w, --timeout=N     stop after N seconds of sending packets\n");
+    printf("  -W, --linger=N      number of seconds to wait for response before quitting\n\n");
+    
+    printf("  -?, --help          display this help list\n");
 }
 
 void print_stats(t_ping *ping)
