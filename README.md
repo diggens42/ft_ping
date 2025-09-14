@@ -1,5 +1,3 @@
-Here's a comprehensive README.md for your ft_ping project:
-
 ```markdown
 # ft_ping
 
