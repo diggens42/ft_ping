@@ -6,7 +6,7 @@
 /*   By: fwahl <fwahl@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/09/06 02:45:46 by fwahl             #+#    #+#             */
-/*   Updated: 2025/09/15 15:23:24 by fwahl            ###   ########.fr       */
+/*   Updated: 2025/09/15 17:35:53 by fwahl            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -19,7 +19,7 @@ static bool    init_conf(t_conf *conf)
     ft_memset(conf, 0, sizeof(t_conf));
     conf->dest.sin_family = AF_UNSPEC; //must set = AF_INET later!!
     conf->socket_fd = -1;
-    conf->pid = getpid();
+    conf->pid = getpid() & 0xFFFF;
     conf->opts.packet_size = PACKET_SIZE_DEFAULT;
     conf->opts.packet_type = ICMP_ECHO;
     conf->opts.interval = 1;

@@ -6,7 +6,7 @@
 /*   By: fwahl <fwahl@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/09/06 05:56:17 by fwahl             #+#    #+#             */
-/*   Updated: 2025/09/15 17:10:11 by fwahl            ###   ########.fr       */
+/*   Updated: 2025/09/15 17:18:05 by fwahl            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -236,9 +236,7 @@ void ft_ping(t_ping *ping)
     gettimeofday(&timing.start, NULL);
     gettimeofday(&timing.last_send, NULL);
     ping->stat.start = timing.start;
-
-    if (!HAS_FLAG(&ping->conf, FLAG_QUIET))
-        print_ping_header(&ping->conf);
+    print_ping_header(&ping->conf);
 
     while (g_run)
     {

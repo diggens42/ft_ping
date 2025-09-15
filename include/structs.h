@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   structs.h                                          :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: fwahl <fwahl@student.42heilbronn.de>       +#+  +:+       +#+        */
+/*   By: fwahl <fwahl@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/09/06 15:05:29 by fwahl             #+#    #+#             */
-/*   Updated: 2025/09/14 23:23:46 by fwahl            ###   ########.fr       */
+/*   Updated: 2025/09/15 17:36:51 by fwahl            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -17,7 +17,7 @@
 typedef struct s_opts
 {
     double              interval;     // -i / --interval flag --> interval of seconds in between packages sent
-    uint32_t            count;        // -c / --count=N flag value --> num of echo req to send 
+    uint32_t            count;        // -c / --count=N flag value --> num of echo req to send
     uint32_t            timeout;      // -w timeout in seconds
     uint32_t            linger;       // -W: per packet timeout in secs
     uint16_t            packet_size;  // -s size of ICMP payloads in bytes
@@ -34,8 +34,8 @@ typedef struct s_conf
     char                tar[HOSTNAME_MAXLEN];       // original target argument
     char                hostname[HOSTNAME_MAXLEN];  // resolved hostname
     char                res_ip[INET_ADDRSTRLEN];    // IP after DNS lookup
-    pid_t               pid;                        // PID for ICMP identifier
     int                 socket_fd;                  // raw socket fd
+    uint16_t            pid;                        // PID for ICMP identifier
     uint8_t             flags;                      // 8byte bitmask instead of bool flag struct
     t_opts              opts;
 }   t_conf;

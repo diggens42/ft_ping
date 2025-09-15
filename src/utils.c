@@ -6,7 +6,7 @@
 /*   By: fwahl <fwahl@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/09/06 02:45:50 by fwahl             #+#    #+#             */
-/*   Updated: 2025/09/15 16:46:46 by fwahl            ###   ########.fr       */
+/*   Updated: 2025/09/15 17:40:43 by fwahl            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -70,19 +70,29 @@ void print_stats(t_ping *ping)
     if (ping->stat.recv > 0)
     {
         double avg_rtt = ping->stat.sum_rtt / ping->stat.recv;
+        double sum_rtt_sq = ping->stat.sum_rtt * ping->stat.sum_rtt;
+        double variance = (sum_rtt_sq / ping->stat.recv) - (avg_rtt * avg_rtt);
+        if (variance < 0) variance = 0;
+        double stddev = sqrt(variance);
 
-        printf("rtt min/avg/max = %.3f/%.3f/%.3f ms\n",
-               ping->stat.min_rtt, avg_rtt, ping->stat.max_rtt);
+        printf("round trip min/avg/max/stddev = %.3f/%.3f/%.3f/%.3f ms\n",
+               ping->stat.min_rtt, avg_rtt, ping->stat.max_rtt, stddev);
     }
+
 }
 
 void print_ping_header(t_conf *conf)
 {
-	printf("PING %s (%s) %d(%d) bytes of data.\n",
+	printf("PING %s (%s) %d(%d) bytes of data.",
 		   conf->tar,
 		   conf->res_ip,
 		   conf->opts.packet_size,
 		   conf->opts.packet_size + 28);  // +20 IP +8 ICMP headers
+    if (HAS_FLAG(conf, FLAG_VERBOSE))
+        printf("id 0x%04x = %u\n", conf->pid, conf->pid);
+    else
+        printf("\n");
+
 }
 
 double	get_ms(struct timeval *sent, struct timeval *recv)
