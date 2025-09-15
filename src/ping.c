@@ -6,7 +6,7 @@
 /*   By: fwahl <fwahl@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/09/06 05:56:17 by fwahl             #+#    #+#             */
-/*   Updated: 2025/09/15 17:03:35 by fwahl            ###   ########.fr       */
+/*   Updated: 2025/09/15 17:10:11 by fwahl            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -129,26 +129,13 @@ static bool send_ping(t_conf *conf, t_stat *stat, int seq)
     packet->header.un.echo.sequence = htons(seq);
     packet->header.checksum = 0;
 
-    // Get current time and store it
     struct timeval tv_now;
     gettimeofday(&tv_now, NULL);
     ft_memcpy(packet->data, &tv_now, sizeof(tv_now));
-
-    // DEBUG: Add magic number to verify data integrity
-    uint32_t magic = 0xDEADBEEF;
-    ft_memcpy(packet->data + sizeof(tv_now), &magic, sizeof(magic));
-
-    // DEBUG: Print what we're sending
-    printf("DEBUG SEND: seq=%d, timestamp=%ld.%06ld, magic=0x%X\n",
-           seq, tv_now.tv_sec, tv_now.tv_usec, magic);
-
-    // Fill rest with pattern
-    handle_pattern(conf, packet->data, sizeof(tv_now) + sizeof(magic));
-
-    // Calculate checksum
+    handle_pattern(conf, packet->data, sizeof(tv_now));
     packet->header.checksum = get_checksum(packet, packet_size);
 
-    // Send packet
+    // send packet
     ssize_t nbytes = sendto(conf->socket_fd, packet, packet_size, 0,
                            (struct sockaddr *)&conf->dest, sizeof(conf->dest));
     free(packet);
@@ -186,12 +173,12 @@ static bool recv_ping(t_conf *conf, t_stat *stat)
         if (errno == EAGAIN || errno == EWOULDBLOCK)
         {
             if (HAS_FLAG(conf, FLAG_VERBOSE))
-                printf("recv_ping: req timeout icmp_seq %d\n", stat->sent);
+                printf("no answer yet for icmp_seq=%d\n", stat->sent);
             stat->lost++;
             return (false);
         }
         if (HAS_FLAG(conf, FLAG_VERBOSE))
-            fprintf(stderr, "recv_ping: recvmsg %s\n", strerror(errno));
+            fprintf(stderr, "recvmsg: %s\n", strerror(errno));
         return (false);
     }
 
@@ -201,42 +188,17 @@ static bool recv_ping(t_conf *conf, t_stat *stat)
     int ip_hlen = ip->ihl * 4;
     struct icmphdr *icmp = (struct icmphdr *)(buf + ip_hlen);
 
-    // DEBUG: Print what we received
-    printf("DEBUG RECV: ICMP type=%d, id=%d (expected %d), seq=%d\n",
-           icmp->type, ntohs(icmp->un.echo.id), conf->pid & 0xFFFF,
-           ntohs(icmp->un.echo.sequence));
-
-    // Check if it's our echo reply
+    // check if it's our echo reply
     if (ntohs(icmp->un.echo.id) == (conf->pid & 0xFFFF) && icmp->type == ICMP_ECHOREPLY)
     {
         stat->recv++;
 
-        // Extract timestamp from received packet
+        // extract timestamp and cal rtt
         sent_tv = (struct timeval *)(buf + ip_hlen + sizeof(struct icmphdr));
-
-        // DEBUG: Check magic number
-        uint32_t *magic = (uint32_t*)(buf + ip_hlen + sizeof(struct icmphdr) + sizeof(struct timeval));
-        printf("DEBUG RECV: Magic check - expected 0xDEADBEEF, got 0x%X\n", *magic);
-
-        // DEBUG: Print timestamps
-        printf("DEBUG RECV: Sent timestamp: %ld.%06ld\n", sent_tv->tv_sec, sent_tv->tv_usec);
-        printf("DEBUG RECV: Current time:   %ld.%06ld\n", now.tv_sec, now.tv_usec);
-
-        // Calculate RTT
         ft_time_substract(&diff, &now, sent_tv);
         double rtt = ft_time_to_ms(&diff);
 
-        // DEBUG: Print calculation
-        printf("DEBUG RECV: Time diff: %ld.%06ld seconds\n", diff.tv_sec, diff.tv_usec);
-        printf("DEBUG RECV: RTT calculated: %.3f ms\n", rtt);
-
-        // Sanity check
-        if (rtt < 0 || rtt > 30000)  // RTT shouldn't be negative or > 30 seconds
-        {
-            printf("WARNING: Suspicious RTT value: %.3f ms\n", rtt);
-        }
-
-        // Update statistics
+        // update stats
         if (stat->recv == 1)
         {
             stat->min_rtt = rtt;
@@ -251,10 +213,7 @@ static bool recv_ping(t_conf *conf, t_stat *stat)
         }
         stat->sum_rtt += rtt;
 
-        // Get display address
         handle_numeric(conf, &from, display_addr, sizeof(display_addr));
-
-        // Print normal output (unless quiet)
         if (!HAS_FLAG(conf, FLAG_QUIET))
             printf("%ld bytes from %s: icmp_seq=%d ttl=%d time=%.1f ms\n",
                    nbytes - ip_hlen, display_addr,
