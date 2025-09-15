@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   ping.c                                             :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: fwahl <fwahl@student.42.fr>                +#+  +:+       +#+        */
+/*   By: fwahl <fwahl@student.42heilbronn.de>       +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/09/06 05:56:17 by fwahl             #+#    #+#             */
-/*   Updated: 2025/09/15 15:17:27 by fwahl            ###   ########.fr       */
+/*   Updated: 2025/09/15 16:39:02 by fwahl            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -134,10 +134,10 @@ static bool send_ping(t_conf *conf, t_stat *stat, int seq)
     gettimeofday(&tv_now, NULL);
     ft_memcpy(packet->data, &tv_now, sizeof(tv_now));
     handle_pattern(conf, packet->data, sizeof(tv_now));
-    packet->header.checksum = get_checksum(&packet, sizeof(packet->header) + conf->opts.packet_size);
+    packet->header.checksum = get_checksum(packet, packet_size);
 
     //send packet
-    ssize_t nbytes = sendto(conf->socket_fd, &packet, sizeof(packet->header) + conf->opts.packet_size, 0, (struct sockaddr *)&conf->dest, sizeof(conf->dest));
+    ssize_t nbytes = sendto(conf->socket_fd, packet, packet_size, 0, (struct sockaddr *)&conf->dest, sizeof(conf->dest));
     free(packet);
     packet = NULL;
     if (nbytes < 0)
