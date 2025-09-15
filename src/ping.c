@@ -6,13 +6,13 @@
 /*   By: fwahl <fwahl@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/09/06 05:56:17 by fwahl             #+#    #+#             */
-/*   Updated: 2025/09/15 15:05:47 by fwahl            ###   ########.fr       */
+/*   Updated: 2025/09/15 15:08:35 by fwahl            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "../include/ft_ping.h"
 
-static void handle_quiet(t_conf *conf, t_stat *stat, ssize_t nbytes, int ip_hlen, struct icmphdr *icmp, struct iphdr *ip, double rtt)
+static void handle_quiet(t_conf *conf, ssize_t nbytes, int ip_hlen, struct icmphdr *icmp, struct iphdr *ip, double rtt)
 {
     if (HAS_FLAG(conf, FLAG_QUIET))
         return ;
@@ -219,7 +219,7 @@ static bool recv_ping(t_conf *conf, t_stat *stat)
                 stat->max_rtt = rtt;
         }
         stat->sum_rtt += rtt;
-        handle_quiet(conf, stat, nbytes, ip_hlen, icmp, ip, rtt);
+        handle_quiet(conf, nbytes, ip_hlen, icmp, ip, rtt);
         return (true);
     }
     else
