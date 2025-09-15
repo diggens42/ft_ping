@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   ping.c                                             :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: fwahl <fwahl@student.42heilbronn.de>       +#+  +:+       +#+        */
+/*   By: fwahl <fwahl@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/09/06 05:56:17 by fwahl             #+#    #+#             */
-/*   Updated: 2025/09/15 16:39:02 by fwahl            ###   ########.fr       */
+/*   Updated: 2025/09/15 16:48:50 by fwahl            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -125,7 +125,7 @@ static bool send_ping(t_conf *conf, t_stat *stat, int seq)
     }
     packet->header.type = ICMP_ECHO;
     packet->header.code = 0;
-    packet->header.un.echo.id = htons(conf->pid);
+    packet->header.un.echo.id = htons(conf->pid & 0xFFFF);
     packet->header.un.echo.sequence = htons(seq);
     packet->header.checksum = 0;
 
@@ -192,7 +192,7 @@ static bool recv_ping(t_conf *conf, t_stat *stat)
     struct icmphdr *icmp = (struct icmphdr *)(buf + ip_hlen);
 
     //check if its correct echo reply
-    if (ntohs(icmp->un.echo.id) == conf->pid && icmp->type == ICMP_ECHOREPLY)
+    if (ntohs(icmp->un.echo.id) == (conf->pid & 0xFFFF) && icmp->type == ICMP_ECHOREPLY)
     {
         stat->recv++;
         sent_tv = (struct timeval *)(buf + ip_hlen +sizeof(struct icmphdr));
