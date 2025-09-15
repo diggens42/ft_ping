@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   resolve.c                                          :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: fwahl <fwahl@student.42heilbronn.de>       +#+  +:+       +#+        */
+/*   By: fwahl <fwahl@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/09/07 00:34:39 by fwahl             #+#    #+#             */
-/*   Updated: 2025/09/14 23:33:18 by fwahl            ###   ########.fr       */
+/*   Updated: 2025/09/15 15:00:49 by fwahl            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -26,9 +26,9 @@ bool	resolve_hostname(t_conf *conf)
 		fprintf(stderr, "resolve_hostname: cannot resolve %s: %s\n", conf->tar, gai_strerror(ret));
 		return (false);
 	}
-	
+
 	ft_memcpy(&conf->dest, addr_list->ai_addr, sizeof(struct sockaddr_in));
-	
+
     //store resolved ip
 	if (!inet_ntop(AF_INET, &conf->dest.sin_addr, conf->res_ip, INET_ADDRSTRLEN))
 	{
@@ -44,8 +44,6 @@ bool	resolve_hostname(t_conf *conf)
 			ft_strlcpy(conf->hostname, host->h_name, sizeof(conf->hostname));
 		else
 			ft_strlcpy(conf->hostname, conf->res_ip, sizeof(conf->hostname));
-		
-		
 	}
 	else
 		ft_strlcpy(conf->hostname, conf->res_ip, sizeof(conf->hostname));

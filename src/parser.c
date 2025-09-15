@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   parser.c                                           :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: fwahl <fwahl@student.42heilbronn.de>       +#+  +:+       +#+        */
+/*   By: fwahl <fwahl@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/09/10 01:15:51 by fwahl             #+#    #+#             */
-/*   Updated: 2025/09/14 23:36:58 by fwahl            ###   ########.fr       */
+/*   Updated: 2025/09/15 14:59:47 by fwahl            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -311,7 +311,7 @@ bool    parse(int argc, char **argv, t_conf *conf)
                 return (false);
         }
     }
-    if (!HAS_FLAG(conf, FLAG_HELP) && !conf->tar)
+    if (!HAS_FLAG(conf, FLAG_HELP) && conf->tar[0] == '\0')
     {
         fprintf(stderr, "ft_ping: usage error: Destination address required\n");
         return (false);

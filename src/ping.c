@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   ping.c                                             :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: fwahl <fwahl@student.42heilbronn.de>       +#+  +:+       +#+        */
+/*   By: fwahl <fwahl@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/09/06 05:56:17 by fwahl             #+#    #+#             */
-/*   Updated: 2025/09/14 23:17:33 by fwahl            ###   ########.fr       */
+/*   Updated: 2025/09/15 15:05:47 by fwahl            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -17,7 +17,7 @@ static void handle_quiet(t_conf *conf, t_stat *stat, ssize_t nbytes, int ip_hlen
     if (HAS_FLAG(conf, FLAG_QUIET))
         return ;
     printf("%ld bytes from %s: icmp_seq=%d ttl=%d time=%.1f ms\n",
-        nbytes - ip_hlen, conf->res_ip, 
+        nbytes - ip_hlen, conf->res_ip,
         ntohs(icmp->un.echo.sequence), ip->ttl, rtt);
 }
 
@@ -27,7 +27,7 @@ static void handle_verbose(t_conf *conf, struct icmphdr *icmp, struct sockaddr_i
         return ;
     char addr_str[INET_ADDRSTRLEN];
     inet_ntop(AF_INET, &from->sin_addr, addr_str, sizeof(addr_str));
-    
+
     switch (icmp->type)
     {
         case (ICMP_DEST_UNREACH):
@@ -40,11 +40,11 @@ static void handle_verbose(t_conf *conf, struct icmphdr *icmp, struct sockaddr_i
             printf("From %s: Source Quench\n", addr_str);
             break;
         case (ICMP_REDIRECT):
-            printf("From %s: Redirect (type=%d, code=%d)\n", 
+            printf("From %s: Redirect (type=%d, code=%d)\n",
                    addr_str, icmp->type, icmp->code);
             break;
         default:
-            printf("From %s: type=%d code=%d\n", 
+            printf("From %s: type=%d code=%d\n",
                    addr_str, icmp->type, icmp->code);
     }
 }
@@ -119,21 +119,25 @@ static void handle_pattern(t_conf *conf, char *data, int offset)
         for (int i = offset;  i < conf->opts.packet_size; i++)
             data[i] = i & 0xFF;
     }
-    
+
 }
 
 static bool send_ping(t_conf *conf, t_stat *stat, int seq)
 {
     //init packet & icmp header
     size_t      packet_size = sizeof(struct icmphdr) + conf->opts.packet_size;
-    t_packet    *packet = malloc(packet_size);
-    ft_memset(&packet, 0, sizeof(packet));
+    t_packet    *packet = ft_calloc(1, packet_size);
+    if (packet == NULL)
+    {
+        FT_ERROR();
+        return (false);
+    }
     packet->header.type = ICMP_ECHO;
     packet->header.code = 0;
     packet->header.un.echo.id = htons(conf->pid);
     packet->header.un.echo.sequence = htons(seq);
     packet->header.checksum = 0;
-    
+
     // fill packet.data with timestamp and leftover bytes with pattern (-p / --pattern=PATTERN flag or default)
     struct timeval  tv_now;
     gettimeofday(&tv_now, NULL);
@@ -144,6 +148,7 @@ static bool send_ping(t_conf *conf, t_stat *stat, int seq)
     //send packet
     ssize_t nbytes = sendto(conf->socket_fd, &packet, sizeof(packet->header) + conf->opts.packet_size, 0, (struct sockaddr *)&conf->dest, sizeof(conf->dest));
     free(packet);
+    packet = NULL;
     if (nbytes < 0)
     {
         if (HAS_FLAG(conf, FLAG_VERBOSE))
