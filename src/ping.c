@@ -6,7 +6,7 @@
 /*   By: fwahl <fwahl@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/09/06 05:56:17 by fwahl             #+#    #+#             */
-/*   Updated: 2025/09/15 16:48:50 by fwahl            ###   ########.fr       */
+/*   Updated: 2025/09/15 17:03:35 by fwahl            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -115,31 +115,44 @@ static void handle_pattern(t_conf *conf, char *data, int offset)
 
 static bool send_ping(t_conf *conf, t_stat *stat, int seq)
 {
-    //init packet & icmp header
-    size_t      packet_size = sizeof(struct icmphdr) + conf->opts.packet_size;
-    t_packet    *packet = ft_calloc(1, packet_size);
+    size_t packet_size = sizeof(struct icmphdr) + conf->opts.packet_size;
+    t_packet *packet = ft_calloc(1, packet_size);
     if (packet == NULL)
     {
         FT_ERROR();
         return (false);
     }
+
     packet->header.type = ICMP_ECHO;
     packet->header.code = 0;
     packet->header.un.echo.id = htons(conf->pid & 0xFFFF);
     packet->header.un.echo.sequence = htons(seq);
     packet->header.checksum = 0;
 
-    // fill packet.data with timestamp and leftover bytes with pattern (-p / --pattern=PATTERN flag or default)
-    struct timeval  tv_now;
+    // Get current time and store it
+    struct timeval tv_now;
     gettimeofday(&tv_now, NULL);
     ft_memcpy(packet->data, &tv_now, sizeof(tv_now));
-    handle_pattern(conf, packet->data, sizeof(tv_now));
+
+    // DEBUG: Add magic number to verify data integrity
+    uint32_t magic = 0xDEADBEEF;
+    ft_memcpy(packet->data + sizeof(tv_now), &magic, sizeof(magic));
+
+    // DEBUG: Print what we're sending
+    printf("DEBUG SEND: seq=%d, timestamp=%ld.%06ld, magic=0x%X\n",
+           seq, tv_now.tv_sec, tv_now.tv_usec, magic);
+
+    // Fill rest with pattern
+    handle_pattern(conf, packet->data, sizeof(tv_now) + sizeof(magic));
+
+    // Calculate checksum
     packet->header.checksum = get_checksum(packet, packet_size);
 
-    //send packet
-    ssize_t nbytes = sendto(conf->socket_fd, packet, packet_size, 0, (struct sockaddr *)&conf->dest, sizeof(conf->dest));
+    // Send packet
+    ssize_t nbytes = sendto(conf->socket_fd, packet, packet_size, 0,
+                           (struct sockaddr *)&conf->dest, sizeof(conf->dest));
     free(packet);
-    packet = NULL;
+
     if (nbytes < 0)
     {
         if (HAS_FLAG(conf, FLAG_VERBOSE))
@@ -150,7 +163,6 @@ static bool send_ping(t_conf *conf, t_stat *stat, int seq)
     return (true);
 }
 
-
 static bool recv_ping(t_conf *conf, t_stat *stat)
 {
     char                buf[1024];
@@ -159,7 +171,6 @@ static bool recv_ping(t_conf *conf, t_stat *stat)
     struct sockaddr_in  from;
     struct timeval      now, *sent_tv, diff;
     char                display_addr[256];
-
 
     ft_memset(&msg, 0, sizeof(msg));
     msg.msg_name = &from;
@@ -188,16 +199,44 @@ static bool recv_ping(t_conf *conf, t_stat *stat)
 
     struct iphdr *ip = (struct iphdr *)buf;
     int ip_hlen = ip->ihl * 4;
-
     struct icmphdr *icmp = (struct icmphdr *)(buf + ip_hlen);
 
-    //check if its correct echo reply
+    // DEBUG: Print what we received
+    printf("DEBUG RECV: ICMP type=%d, id=%d (expected %d), seq=%d\n",
+           icmp->type, ntohs(icmp->un.echo.id), conf->pid & 0xFFFF,
+           ntohs(icmp->un.echo.sequence));
+
+    // Check if it's our echo reply
     if (ntohs(icmp->un.echo.id) == (conf->pid & 0xFFFF) && icmp->type == ICMP_ECHOREPLY)
     {
         stat->recv++;
-        sent_tv = (struct timeval *)(buf + ip_hlen +sizeof(struct icmphdr));
+
+        // Extract timestamp from received packet
+        sent_tv = (struct timeval *)(buf + ip_hlen + sizeof(struct icmphdr));
+
+        // DEBUG: Check magic number
+        uint32_t *magic = (uint32_t*)(buf + ip_hlen + sizeof(struct icmphdr) + sizeof(struct timeval));
+        printf("DEBUG RECV: Magic check - expected 0xDEADBEEF, got 0x%X\n", *magic);
+
+        // DEBUG: Print timestamps
+        printf("DEBUG RECV: Sent timestamp: %ld.%06ld\n", sent_tv->tv_sec, sent_tv->tv_usec);
+        printf("DEBUG RECV: Current time:   %ld.%06ld\n", now.tv_sec, now.tv_usec);
+
+        // Calculate RTT
         ft_time_substract(&diff, &now, sent_tv);
         double rtt = ft_time_to_ms(&diff);
+
+        // DEBUG: Print calculation
+        printf("DEBUG RECV: Time diff: %ld.%06ld seconds\n", diff.tv_sec, diff.tv_usec);
+        printf("DEBUG RECV: RTT calculated: %.3f ms\n", rtt);
+
+        // Sanity check
+        if (rtt < 0 || rtt > 30000)  // RTT shouldn't be negative or > 30 seconds
+        {
+            printf("WARNING: Suspicious RTT value: %.3f ms\n", rtt);
+        }
+
+        // Update statistics
         if (stat->recv == 1)
         {
             stat->min_rtt = rtt;
@@ -211,13 +250,21 @@ static bool recv_ping(t_conf *conf, t_stat *stat)
                 stat->max_rtt = rtt;
         }
         stat->sum_rtt += rtt;
+
+        // Get display address
         handle_numeric(conf, &from, display_addr, sizeof(display_addr));
+
+        // Print normal output (unless quiet)
         if (!HAS_FLAG(conf, FLAG_QUIET))
-            printf("%ld bytes from %s: icmp_seq=%d ttl=%d time=%.1f ms\n", nbytes - ip_hlen, display_addr, ntohs(icmp->un.echo.sequence), ip->ttl, rtt);
+            printf("%ld bytes from %s: icmp_seq=%d ttl=%d time=%.1f ms\n",
+                   nbytes - ip_hlen, display_addr,
+                   ntohs(icmp->un.echo.sequence), ip->ttl, rtt);
+
         return (true);
     }
     else
         handle_verbose(conf, icmp, &from);
+
     return (false);
 }
 
