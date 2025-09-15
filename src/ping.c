@@ -6,20 +6,11 @@
 /*   By: fwahl <fwahl@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/09/06 05:56:17 by fwahl             #+#    #+#             */
-/*   Updated: 2025/09/15 15:08:35 by fwahl            ###   ########.fr       */
+/*   Updated: 2025/09/15 15:17:27 by fwahl            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "../include/ft_ping.h"
-
-static void handle_quiet(t_conf *conf, ssize_t nbytes, int ip_hlen, struct icmphdr *icmp, struct iphdr *ip, double rtt)
-{
-    if (HAS_FLAG(conf, FLAG_QUIET))
-        return ;
-    printf("%ld bytes from %s: icmp_seq=%d ttl=%d time=%.1f ms\n",
-        nbytes - ip_hlen, conf->res_ip,
-        ntohs(icmp->un.echo.sequence), ip->ttl, rtt);
-}
 
 static void handle_verbose(t_conf *conf, struct icmphdr *icmp, struct sockaddr_in *from)
 {
@@ -167,6 +158,7 @@ static bool recv_ping(t_conf *conf, t_stat *stat)
     struct msghdr       msg;
     struct sockaddr_in  from;
     struct timeval      now, *sent_tv, diff;
+    char                display_addr[256];
 
 
     ft_memset(&msg, 0, sizeof(msg));
@@ -219,7 +211,9 @@ static bool recv_ping(t_conf *conf, t_stat *stat)
                 stat->max_rtt = rtt;
         }
         stat->sum_rtt += rtt;
-        handle_quiet(conf, nbytes, ip_hlen, icmp, ip, rtt);
+        handle_numeric(conf, &from, display_addr, sizeof(display_addr));
+        if (!HAS_FLAG(conf, FLAG_QUIET))
+            printf("%ld bytes from %s: icmp_seq=%d ttl=%d time=%.1f ms\n", nbytes - ip_hlen, display_addr, ntohs(icmp->un.echo.sequence), ip->ttl, rtt);
         return (true);
     }
     else
