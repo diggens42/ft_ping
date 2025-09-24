@@ -6,7 +6,7 @@
 /*   By: fwahl <fwahl@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/09/06 05:56:17 by fwahl             #+#    #+#             */
-/*   Updated: 2025/09/24 19:32:48 by fwahl            ###   ########.fr       */
+/*   Updated: 2025/09/24 19:36:03 by fwahl            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -150,7 +150,7 @@ static bool send_ping(t_conf *conf, t_stat *stat, int seq)
     return (true);
 }
 
-static bool get_packet_data(char *buf, ssize_t nbytes, struct iphdr **ip, struct icmphdr **icmp, int *ip_hlen)
+static bool get_packet_data(char *buf, struct iphdr **ip, struct icmphdr **icmp, int *ip_hlen)
 {
     *ip = (struct iphdr *)buf;
     *ip_hlen = (*ip)->ihl * 4;
@@ -270,7 +270,7 @@ static bool recv_ping(t_conf *conf, t_stat *stat)
     }
 
     gettimeofday(&now, NULL);
-    get_packet_data(buf, nbytes, &ip, &icmp, &ip_hlen);
+    get_packet_data(buf, &ip, &icmp, &ip_hlen);
 
     // Handle different ICMP types
     switch (icmp->type)
