@@ -6,7 +6,7 @@
 /*   By: fwahl <fwahl@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/09/10 01:15:51 by fwahl             #+#    #+#             */
-/*   Updated: 2025/09/24 17:15:26 by fwahl            ###   ########.fr       */
+/*   Updated: 2025/09/24 21:28:02 by fwahl            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -151,13 +151,13 @@ static int parse_type(const char *val, t_conf *conf)
     }
 
     if (ft_strcasecmp(val, "echo") == 0)
-        conf->opts.packet_type = 8;
+        conf->opts.packet_type = ICMP_ECHO;
     else if (ft_strcasecmp(val, "address") == 0)
-        conf->opts.packet_type = 17;
+        conf->opts.packet_type = ICMP_MASKREQ;
     else if (ft_strcasecmp(val, "mask") == 0)
-        conf->opts.packet_type = 17;
+        conf->opts.packet_type = ICMP_MASKREQ;
     else if (ft_strcasecmp(val, "timestamp") == 0)
-        conf->opts.packet_type = 13;
+        conf->opts.packet_type = ICMP_TSTAMP;
     else
     {
         fprintf(stderr, "ft_ping: unsupported packet type: %s\n", val);

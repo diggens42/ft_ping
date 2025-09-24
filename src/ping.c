@@ -6,7 +6,7 @@
 /*   By: fwahl <fwahl@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/09/06 05:56:17 by fwahl             #+#    #+#             */
-/*   Updated: 2025/09/24 20:57:29 by fwahl            ###   ########.fr       */
+/*   Updated: 2025/09/24 21:30:03 by fwahl            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -118,7 +118,7 @@ static bool send_ping(t_conf *conf, t_stat *stat, int seq)
     size_t packet_size;
     t_packet *packet;
 
-    // Determine packet size based on type
+    //packet size based on req type
     if (conf->opts.packet_type == ICMP_TSTAMP)
         packet_size = sizeof(struct icmphdr) + 12; // Fixed 12 bytes for timestamps
     else
@@ -132,6 +132,7 @@ static bool send_ping(t_conf *conf, t_stat *stat, int seq)
     }
 
     packet->header.type = conf->opts.packet_type;
+    printf("DEBUG: Set packet header type to %d\n", packet->header.type);
     packet->header.code = 0;
     packet->header.un.echo.id = htons(conf->pid & 0xFFFF);
     packet->header.un.echo.sequence = htons(seq);
@@ -156,9 +157,7 @@ static bool send_ping(t_conf *conf, t_stat *stat, int seq)
         ft_memcpy(packet->data, &tv_now, sizeof(tv_now));
         handle_pattern(conf, packet->data, sizeof(tv_now));
     }
-
     packet->header.checksum = get_checksum(packet, packet_size);
-
     // send packet
     ssize_t nbytes = sendto(conf->socket_fd, packet, packet_size, 0,
                            (struct sockaddr *)&conf->dest, sizeof(conf->dest));
@@ -214,6 +213,13 @@ static bool recv_ping(t_conf *conf, t_stat *stat)
     ip_hlen = ip->ihl * 4;
     icmp = (struct icmphdr *)(buf + ip_hlen);
 
+    //check if its our reply package
+    if (ntohs(icmp->un.echo.id) != (conf->pid & 0xFFFF))
+    {
+        handle_verbose(conf, icmp, &from);
+        return (false);
+    }
+
     // Handle Timestamp Reply
     if (icmp->type == ICMP_TSTAMPREPLY)
     {
@@ -234,7 +240,7 @@ static bool recv_ping(t_conf *conf, t_stat *stat)
     }
 
     // Handle Echo Reply
-    if (icmp->type == ICMP_ECHOREPLY && ntohs(icmp->un.echo.id) == (conf->pid & 0xFFFF))
+    if (icmp->type == ICMP_ECHOREPLY)
     {
         stat->recv++;
 

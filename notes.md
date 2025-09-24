@@ -121,7 +121,7 @@ Options valid for all request types:
 
 
 sudo setcap cap_net_raw+ep ./ft_ping for socket creation error
-
+   sudo tcpdump -i any -nn -vv icmp  --> tcpdump to check received package data
 
 ### TO DO
 
