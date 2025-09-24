@@ -6,7 +6,7 @@
 /*   By: fwahl <fwahl@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/09/06 05:56:17 by fwahl             #+#    #+#             */
-/*   Updated: 2025/09/24 19:36:03 by fwahl            ###   ########.fr       */
+/*   Updated: 2025/09/24 19:43:18 by fwahl            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -182,25 +182,18 @@ static double calculate_rtt(struct timeval *now, struct timeval *sent_tv)
     return (ft_time_to_ms(&diff));
 }
 
-static bool handle_timestamp_reply(t_conf *conf, t_stat *stat, struct icmphdr *icmp, struct sockaddr_in *from, ssize_t nbytes, int ip_hlen, struct timeval *now)
+static bool handle_timestamp_reply(t_conf *conf, t_stat *stat, struct icmphdr *icmp, struct sockaddr_in *from, ssize_t nbytes, int ip_hlen, struct timeval *now, char *buf)
 {
     char display_addr[256];
     uint32_t *timestamps = (uint32_t *)(icmp + 1);
     uint32_t otime = ntohl(timestamps[0]);
     uint32_t rtime = ntohl(timestamps[1]);
     uint32_t ttime = ntohl(timestamps[2]);
-
-    // Calculate RTT if you have the original timestamp stored
-    struct timeval *sent_tv = (struct timeval *)(timestamps + 3); // Adjust based on your packet structure
-    double rtt = calculate_rtt(now, sent_tv);
-
     stat->recv++;
-    update_rtt_stats(stat, rtt);
 
     handle_numeric(conf, from, display_addr, sizeof(display_addr));
 
-    // Timestamp replies always print, regardless of quiet flag
-    printf("%ld bytes from %s: icmp_seq=%d time=%.1f ms\n", nbytes - ip_hlen, display_addr, ntohs(icmp->un.echo.sequence), rtt);
+    printf("%ld bytes from %s: icmp_seq=%d\n", nbytes - ip_hlen, display_addr, ntohs(icmp->un.echo.sequence));
     printf("icmp_otime = %u\n", otime);
     printf("icmp_rtime = %u\n", rtime);
     printf("icmp_ttime = %u\n", ttime);
@@ -276,10 +269,12 @@ static bool recv_ping(t_conf *conf, t_stat *stat)
     switch (icmp->type)
     {
         case ICMP_TSTAMPREPLY:
-            return (handle_timestamp_reply(conf, stat, icmp, &from, nbytes, ip_hlen, &now));
+            return (handle_timestamp_reply(conf, stat, icmp, &from,
+                                         nbytes, ip_hlen, &now, buf));  // Added buf
 
         case ICMP_ECHOREPLY:
-            return (handle_echo_reply(conf, stat, icmp, ip, &from, nbytes, ip_hlen, &now, buf));
+            return (handle_echo_reply(conf, stat, icmp, ip, &from,
+                                    nbytes, ip_hlen, &now, buf));
 
         default:
             handle_verbose(conf, icmp, &from);
