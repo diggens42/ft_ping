@@ -6,7 +6,7 @@
 /*   By: fwahl <fwahl@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/09/06 02:45:50 by fwahl             #+#    #+#             */
-/*   Updated: 2025/09/24 16:06:57 by fwahl            ###   ########.fr       */
+/*   Updated: 2025/09/24 17:26:37 by fwahl            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -106,7 +106,8 @@ uint16_t get_checksum(void *data, int len)
     uint32_t sum = 0;
 
     // Sum all 16-bit words
-    while (len > 1) {
+    while (len > 1)
+    {
         sum += *buf++;
         len -= 2;
     }

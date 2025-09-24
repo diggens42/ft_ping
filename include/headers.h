@@ -6,7 +6,7 @@
 /*   By: fwahl <fwahl@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/09/06 06:51:10 by fwahl             #+#    #+#             */
-/*   Updated: 2025/09/13 19:46:35 by fwahl            ###   ########.fr       */
+/*   Updated: 2025/09/24 17:23:51 by fwahl            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -35,5 +35,6 @@
 # include <stddef.h>       // offsetof macro
 # include <stdbool.h>
 # include <time.h>
+# include <math.h>
 
 #endif
