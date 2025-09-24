@@ -6,7 +6,7 @@
 /*   By: fwahl <fwahl@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/09/06 02:45:50 by fwahl             #+#    #+#             */
-/*   Updated: 2025/09/24 17:51:47 by fwahl            ###   ########.fr       */
+/*   Updated: 2025/09/24 20:06:38 by fwahl            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -53,8 +53,8 @@ void print_stats(t_ping *ping)
 
     printf("\n--- %s ping statistics ---\n", ping->conf.tar);
 
-    uint32_t lost = ping->stat.sent - ping->stat.recv;
-    float loss_percent = ping->stat.sent > 0 ? (100.0 * lost / ping->stat.sent) : 0;
+    ping->stat.lost = ping->stat.sent - ping->stat.recv;
+    float loss_percent = ping->stat.sent > 0 ? (100.0 * ping->stat.lost / ping->stat.sent) : 0;
 
     printf("%d packets transmitted, %d received, ",
            ping->stat.sent, ping->stat.recv);

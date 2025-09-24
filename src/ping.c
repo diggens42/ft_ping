@@ -6,7 +6,7 @@
 /*   By: fwahl <fwahl@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/09/06 05:56:17 by fwahl             #+#    #+#             */
-/*   Updated: 2025/09/24 19:51:47 by fwahl            ###   ########.fr       */
+/*   Updated: 2025/09/24 20:08:56 by fwahl            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -173,15 +173,14 @@ static bool recv_ping(t_conf *conf, t_stat *stat)
     msg.msg_iov = &iov;
     msg.msg_iovlen = 1;
 
-    // Receive packet
-    nbytes = recvmsg(conf->socket_fd, &msg, 0);
+    // MSG_DONTWAIT to make this non-blocking
+    nbytes = recvmsg(conf->socket_fd, &msg, MSG_DONTWAIT);
     if (nbytes < 0)
     {
         if (errno == EAGAIN || errno == EWOULDBLOCK)
         {
-            if (HAS_FLAG(conf, FLAG_VERBOSE))
-                printf("no answer yet for icmp_seq=%d\n", stat->sent);
-            stat->lost++;
+            // No packet available - this is NORMAL, not a lost packet!
+            // DON'T increment lost counter here
             return (false);
         }
         if (HAS_FLAG(conf, FLAG_VERBOSE))
@@ -206,7 +205,6 @@ static bool recv_ping(t_conf *conf, t_stat *stat)
         stat->recv++;
         handle_numeric(conf, &from, display_addr, sizeof(display_addr));
 
-        // Timestamp replies always print (no quiet flag check)
         printf("%ld bytes from %s: icmp_seq=%d\n",
                nbytes - ip_hlen, display_addr,
                ntohs(icmp->un.echo.sequence));
@@ -227,7 +225,6 @@ static bool recv_ping(t_conf *conf, t_stat *stat)
         ft_time_substract(&diff, &now, sent_tv);
         rtt = ft_time_to_ms(&diff);
 
-        // Update RTT statistics
         if (stat->recv == 1)
         {
             stat->min_rtt = rtt;
@@ -245,14 +242,15 @@ static bool recv_ping(t_conf *conf, t_stat *stat)
         // Print echo reply (respects quiet flag)
         handle_numeric(conf, &from, display_addr, sizeof(display_addr));
         if (!HAS_FLAG(conf, FLAG_QUIET))
-            printf("%ld bytes from %s: icmp_seq=%d ttl=%d time=%.1f ms\n", nbytes - ip_hlen, display_addr, ntohs(icmp->un.echo.sequence), ip->ttl, rtt);
+            printf("%ld bytes from %s: icmp_seq=%d ttl=%d time=%.1f ms\n",
+                   nbytes - ip_hlen, display_addr,
+                   ntohs(icmp->un.echo.sequence), ip->ttl, rtt);
 
         return (true);
     }
 
-    // Handle other ICMP types or non-matching echo replies
     handle_verbose(conf, icmp, &from);
-    return (false);
+    return (true);
 }
 
 
@@ -269,17 +267,23 @@ void ft_ping(t_ping *ping)
     while (g_run)
     {
         if (handle_timeout(&ping->conf, &timing)) //-w flag
-            break;
+            break ;
+
         if (!send_ping(&ping->conf, &ping->stat, seq))
         {
             if (HAS_FLAG(&ping->conf, FLAG_VERBOSE))
                 fprintf(stderr, "ping: failed to send packet\n");
         }
 
-        recv_ping(&ping->conf, &ping->stat);
+        // Keep receiving until socket buffer is empty
+        while (recv_ping(&ping->conf, &ping->stat))
+        {
+            // recv_ping will return false when no more packets available
+        }
+
         seq++;
         if (handle_count(&ping->conf, seq)) //-c flag
-            break;
+            break ;
         handle_interval(&ping->conf, &timing); // -i flag
     }
 }
