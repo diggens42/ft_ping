@@ -6,7 +6,7 @@
 /*   By: fwahl <fwahl@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/09/06 02:45:50 by fwahl             #+#    #+#             */
-/*   Updated: 2025/09/15 17:40:43 by fwahl            ###   ########.fr       */
+/*   Updated: 2025/09/24 16:06:57 by fwahl            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -18,33 +18,30 @@ void print_help(void)
     printf("Send ICMP ECHO_REQUEST packets to network hosts.\n\n");
 
     printf("Options controlling ICMP request types:\n");
-    printf("  -t, --type=TYPE     send TYPE packets\n\n");
+    printf("  -t, --type=TYPE            send TYPE packets\n\n");
 
     printf("Options valid for all request types:\n");
-    printf("  -c, --count=COUNT   stop after sending (and receiving) COUNT ECHO_RESPONSE\n");
-    printf("                       packets\n");
-    printf("  -d, --debug         set the SO_DEBUG option on the socket being used\n");
-    printf("  -i, --interval=WAIT wait WAIT seconds between sending each packet\n");
-    printf("  -n, --numeric       numeric output only; no attempt will be made to lookup\n");
-    printf("                       symbolic names for host addresses\n");
-    printf("  -p, --pattern=PATTERN\n");
-    printf("                       specify up to 16 \"pad\" bytes to fill out the packet\n");
-    printf("                       you send\n");
-    printf("  -q, --quiet         quiet output; only summary is printed at start and\n");
-    printf("                       finish\n");
-    printf("  -r, --ignore-routing\n");
-    printf("                       bypass normal routing and send directly to a host on\n");
-    printf("                       an attached network\n");
-    printf("  -s, --size=PACKETSIZE\n");
-    printf("                       specify the number of data bytes to send\n");
-    printf("  -v, --verbose       verbose output; lists non-ECHO_RESPONSE ICMP packets\n");
-    printf("                       received\n");
-    printf("  --ttl=N             set packet time-to-live to N\n");
-    printf("  -T, --tos=NUM       set Type-of-Service (TOS) to NUM\n");
-    printf("  -w, --timeout=N     stop after N seconds of sending packets\n");
-    printf("  -W, --linger=N      number of seconds to wait for response before quitting\n\n");
+    printf("  -c, --count=NUMBER         stop after sending NUMBER packets\n");
+    printf("  -d, --debug                set the SO_DEBUG option\n");
+    printf("  -i, --interval=NUMBER      wait NUMBER seconds between sending each packet\n");
+    printf("  -n, --numeric              do not resolve host address\n");
+    printf("  -r, --ignore-routing       send directly to a host on an attached network\n");
+    printf("      --ttl=N                specify N as time-to-live\n");
+    printf("  -T, --tos=NUM              set Type-of-Service (TOS) to NUM\n");
+    printf("  -v, --verbose              verbose output\n");
+    printf("  -w, --timeout=N            stop after N seconds\n");
+    printf("  -W, --linger=N             number of seconds to wait for response\n\n");
 
-    printf("  -?, --help          display this help list\n");
+    printf("Options valid for --echo requests:\n\n");
+    printf("  -p, --pattern=PATTERN      fill ICMP packet with given pattern (hex)\n");
+    printf("  -q, --quiet                quiet output\n");
+    printf("  -s, --size=NUMBER          send NUMBER of data octets\n");
+    printf("  -?, --help                 display this help list\n\n");
+
+    printf("Mandatory or optional arguments to long options are also mandatory or optional\n");
+    printf("for any corresponding short options.\n\n");
+    printf("Options marked with (root only) are available only to superuser\n\n");
+    printf("Report bugs to <fwahl@student.42heilbronn.de>\n");
 }
 
 void print_stats(t_ping *ping)

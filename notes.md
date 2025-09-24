@@ -126,15 +126,12 @@ sudo setcap cap_net_raw+ep ./ft_ping for socket creation error
 ### TO DO
 
 -signals
--errorhandling like og ping command
--setup vm
+Supported Types in GNU Inetutils Ping
+The GNU Inetutils ping --type or -t flag accepts these values:
 
--change parsing to work for inetutils2.0 ping with --flag=ARG
-- bonus flags so far:
-		-c --count=COUNT
-		--ttl
-		-r
-- bonus flags to consider: -f / --flood
+echo - Send ICMP_ECHO requests (this is the default)
+address - Send ICMP_ADDRESS packets (requires root privileges)
+mask - Same as address (alias for address requests)
+timestamp - Send ICMP_TIMESTAMP packets GNUDebian Manpages
 
-
--add --usage
+-->not case sensitive

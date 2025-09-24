@@ -6,7 +6,7 @@
 /*   By: fwahl <fwahl@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/09/10 01:15:51 by fwahl             #+#    #+#             */
-/*   Updated: 2025/09/15 14:59:47 by fwahl            ###   ########.fr       */
+/*   Updated: 2025/09/24 17:15:26 by fwahl            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -142,24 +142,28 @@ static int  parse_count(const char *val, t_conf *conf)
     return (0);
 }
 
-static int  parse_type(const char *val, t_conf *conf)
+static int parse_type(const char *val, t_conf *conf)
 {
-    char    *endptr;
-    long    n;
-
     if (!val || !*val)
     {
         FT_ERROR();
         return (PARSE_ERROR);
     }
-    errno = 0;
-    n = ft_strtol(val, &endptr, 10);
-    if (errno == ERANGE || n < 0 || n > UINT8_MAX || !ft_is_icmp_type(n) || *endptr != '\0')
+
+    if (ft_strcasecmp(val, "echo") == 0)
+        conf->opts.packet_type = 8;
+    else if (ft_strcasecmp(val, "address") == 0)
+        conf->opts.packet_type = 17;
+    else if (ft_strcasecmp(val, "mask") == 0)
+        conf->opts.packet_type = 17;
+    else if (ft_strcasecmp(val, "timestamp") == 0)
+        conf->opts.packet_type = 13;
+    else
     {
-        FT_ERROR();
+        fprintf(stderr, "ft_ping: unsupported packet type: %s\n", val);
         return (PARSE_ERROR);
     }
-    conf->opts.packet_type = (uint8_t)n;
+
     return (0);
 }
 
