@@ -6,7 +6,7 @@
 /*   By: fwahl <fwahl@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/09/06 05:56:17 by fwahl             #+#    #+#             */
-/*   Updated: 2025/09/24 21:30:03 by fwahl            ###   ########.fr       */
+/*   Updated: 2025/09/24 21:36:44 by fwahl            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -132,7 +132,6 @@ static bool send_ping(t_conf *conf, t_stat *stat, int seq)
     }
 
     packet->header.type = conf->opts.packet_type;
-    printf("DEBUG: Set packet header type to %d\n", packet->header.type);
     packet->header.code = 0;
     packet->header.un.echo.id = htons(conf->pid & 0xFFFF);
     packet->header.un.echo.sequence = htons(seq);
@@ -231,7 +230,7 @@ static bool recv_ping(t_conf *conf, t_stat *stat)
         stat->recv++;
         handle_numeric(conf, &from, display_addr, sizeof(display_addr));
 
-        printf("%ld bytes from %s: icmp_seq=%d\n", nbytes - ip_hlen, display_addr, ntohs(icmp->un.echo.sequence));
+        printf("%ld bytes from %s: icmp_seq=%d\n", nbytes, display_addr, ntohs(icmp->un.echo.sequence));
         printf("icmp_otime = %u\n", otime);
         printf("icmp_rtime = %u\n", rtime);
         printf("icmp_ttime = %u\n", ttime);
