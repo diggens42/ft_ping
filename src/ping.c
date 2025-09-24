@@ -6,7 +6,7 @@
 /*   By: fwahl <fwahl@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/09/06 05:56:17 by fwahl             #+#    #+#             */
-/*   Updated: 2025/09/24 20:08:56 by fwahl            ###   ########.fr       */
+/*   Updated: 2025/09/24 20:57:29 by fwahl            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -21,13 +21,13 @@ static void handle_verbose(t_conf *conf, struct icmphdr *icmp, struct sockaddr_i
 
     switch (icmp->type)
     {
-        case (ICMP_DEST_UNREACH):
+        case (ICMP_UNREACH):
             printf("From %s: Destination Unreachable\n", addr_str);
             break;
-        case (ICMP_TIME_EXCEEDED):
+        case (ICMP_TIMXCEED):
             printf("From %s: Time to live exceeded\n", addr_str);
             break;
-        case (ICMP_SOURCE_QUENCH):
+        case (ICMP_SOURCEQUENCH):
             printf("From %s: Source Quench\n", addr_str);
             break;
         case (ICMP_REDIRECT):
@@ -115,24 +115,48 @@ static void handle_pattern(t_conf *conf, char *data, int offset)
 
 static bool send_ping(t_conf *conf, t_stat *stat, int seq)
 {
-    size_t packet_size = sizeof(struct icmphdr) + conf->opts.packet_size;
-    t_packet *packet = ft_calloc(1, packet_size);
+    size_t packet_size;
+    t_packet *packet;
+
+    // Determine packet size based on type
+    if (conf->opts.packet_type == ICMP_TSTAMP)
+        packet_size = sizeof(struct icmphdr) + 12; // Fixed 12 bytes for timestamps
+    else
+        packet_size = sizeof(struct icmphdr) + conf->opts.packet_size;
+
+    packet = ft_calloc(1, packet_size);
     if (packet == NULL)
     {
         FT_ERROR();
         return (false);
     }
 
-    packet->header.type = ICMP_ECHO;
+    packet->header.type = conf->opts.packet_type;
     packet->header.code = 0;
     packet->header.un.echo.id = htons(conf->pid & 0xFFFF);
     packet->header.un.echo.sequence = htons(seq);
     packet->header.checksum = 0;
 
-    struct timeval tv_now;
-    gettimeofday(&tv_now, NULL);
-    ft_memcpy(packet->data, &tv_now, sizeof(tv_now));
-    handle_pattern(conf, packet->data, sizeof(tv_now));
+    if (conf->opts.packet_type == ICMP_TSTAMP)
+    {
+        struct timeval tv;
+        gettimeofday(&tv, NULL);
+
+        uint32_t ms_since_midnight = ((tv.tv_sec % 86400) * 1000) + (tv.tv_usec / 1000);
+        uint32_t *timestamps = (uint32_t *)packet->data;
+        timestamps[0] = htonl(ms_since_midnight); // Originate time
+        timestamps[1] = 0;                         // Receive time (filled by responder)
+        timestamps[2] = 0;                         // Transmit time (filled by responder)
+    }
+    else
+    {
+        // echo req
+        struct timeval tv_now;
+        gettimeofday(&tv_now, NULL);
+        ft_memcpy(packet->data, &tv_now, sizeof(tv_now));
+        handle_pattern(conf, packet->data, sizeof(tv_now));
+    }
+
     packet->header.checksum = get_checksum(packet, packet_size);
 
     // send packet
@@ -178,11 +202,7 @@ static bool recv_ping(t_conf *conf, t_stat *stat)
     if (nbytes < 0)
     {
         if (errno == EAGAIN || errno == EWOULDBLOCK)
-        {
-            // No packet available - this is NORMAL, not a lost packet!
-            // DON'T increment lost counter here
             return (false);
-        }
         if (HAS_FLAG(conf, FLAG_VERBOSE))
             fprintf(stderr, "recvmsg: %s\n", strerror(errno));
         return (false);
@@ -205,9 +225,7 @@ static bool recv_ping(t_conf *conf, t_stat *stat)
         stat->recv++;
         handle_numeric(conf, &from, display_addr, sizeof(display_addr));
 
-        printf("%ld bytes from %s: icmp_seq=%d\n",
-               nbytes - ip_hlen, display_addr,
-               ntohs(icmp->un.echo.sequence));
+        printf("%ld bytes from %s: icmp_seq=%d\n", nbytes - ip_hlen, display_addr, ntohs(icmp->un.echo.sequence));
         printf("icmp_otime = %u\n", otime);
         printf("icmp_rtime = %u\n", rtime);
         printf("icmp_ttime = %u\n", ttime);
@@ -242,10 +260,7 @@ static bool recv_ping(t_conf *conf, t_stat *stat)
         // Print echo reply (respects quiet flag)
         handle_numeric(conf, &from, display_addr, sizeof(display_addr));
         if (!HAS_FLAG(conf, FLAG_QUIET))
-            printf("%ld bytes from %s: icmp_seq=%d ttl=%d time=%.1f ms\n",
-                   nbytes - ip_hlen, display_addr,
-                   ntohs(icmp->un.echo.sequence), ip->ttl, rtt);
-
+            printf("%ld bytes from %s: icmp_seq=%d ttl=%d time=%.1f ms\n", nbytes - ip_hlen, display_addr, ntohs(icmp->un.echo.sequence), ip->ttl, rtt);
         return (true);
     }
 
