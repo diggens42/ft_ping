@@ -13,7 +13,7 @@ SRCS	=	./src/main.c \
 			./src/signal.c \
 			./src/ping.c \
 			./src/utils.c
-			
+
 OBJS	=	$(SRCS:.c=.o)
 HEADERS	=	./include/ft_ping.h
 
@@ -27,8 +27,8 @@ BLUE		=	\x1b[34m
 all: $(LIBFT) $(NAME)
 
 $(NAME): $(OBJS) $(HEADERS)
-	@$(CC) $(CFLAGS) $(OBJS) $(LIBFT) -o $@
-	@echo "$(BLUE) $(CC) $(CFLAGS) $(OBJS) $(LIBFT) -o $@ $(RESET)"
+	@$(CC) $(CFLAGS) $(OBJS) $(LIBFT) -lm -o $@
+	@echo "$(BLUE) $(CC) $(CFLAGS) $(OBJS) $(LIBFT) -lm -o $@ $(RESET)"
 	@echo "$(YELLOW)Creating executable finished.$(RESET)"
 
 %.o: %.c

@@ -6,7 +6,7 @@
 /*   By: fwahl <fwahl@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/09/06 02:45:50 by fwahl             #+#    #+#             */
-/*   Updated: 2025/09/24 17:26:37 by fwahl            ###   ########.fr       */
+/*   Updated: 2025/09/24 17:49:47 by fwahl            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -69,7 +69,8 @@ void print_stats(t_ping *ping)
         double avg_rtt = ping->stat.sum_rtt / ping->stat.recv;
         double sum_rtt_sq = ping->stat.sum_rtt * ping->stat.sum_rtt;
         double variance = (sum_rtt_sq / ping->stat.recv) - (avg_rtt * avg_rtt);
-        if (variance < 0) variance = 0;
+        if (variance < 0)
+            variance = 0;
         double stddev = sqrt(variance);
 
         printf("round trip min/avg/max/stddev = %.3f/%.3f/%.3f/%.3f ms\n",
@@ -80,16 +81,25 @@ void print_stats(t_ping *ping)
 
 void print_ping_header(t_conf *conf)
 {
-	printf("PING %s (%s) %d(%d) bytes of data.",
-		   conf->tar,
-		   conf->res_ip,
-		   conf->opts.packet_size,
-		   conf->opts.packet_size + 28);  // +20 IP +8 ICMP headers
-    if (HAS_FLAG(conf, FLAG_VERBOSE))
-        printf("id 0x%04x = %u\n", conf->pid, conf->pid);
+    if (conf->opts.packet_type == ICMP_ECHO)
+    {
+        printf("PING %s (%s) %d data bytes",
+            conf->tar,
+            conf->res_ip,
+            conf->opts.packet_size);
+        if (HAS_FLAG(conf, FLAG_VERBOSE))
+            printf("id 0x%04x = %u\n", conf->pid, conf->pid);
+        else
+            printf("\n");
+    }
     else
-        printf("\n");
-
+    {
+        printf("PING %s (%s) ", conf->tar, conf->res_ip);
+        if (conf->opts.packet_type == 13)
+            printf("sending timestamp request\n");
+        if (conf->opts.packet_type == 17)
+            printf("sending address mask request\n");
+    }
 }
 
 double	get_ms(struct timeval *sent, struct timeval *recv)
