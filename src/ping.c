@@ -6,7 +6,7 @@
 /*   By: fwahl <fwahl@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/09/06 05:56:17 by fwahl             #+#    #+#             */
-/*   Updated: 2025/09/15 17:18:05 by fwahl            ###   ########.fr       */
+/*   Updated: 2025/09/24 19:32:48 by fwahl            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -150,24 +150,111 @@ static bool send_ping(t_conf *conf, t_stat *stat, int seq)
     return (true);
 }
 
-static bool recv_ping(t_conf *conf, t_stat *stat)
+static bool get_packet_data(char *buf, ssize_t nbytes, struct iphdr **ip, struct icmphdr **icmp, int *ip_hlen)
 {
-    char                buf[1024];
-    struct iovec        iov;
-    struct msghdr       msg;
-    struct sockaddr_in  from;
-    struct timeval      now, *sent_tv, diff;
-    char                display_addr[256];
+    *ip = (struct iphdr *)buf;
+    *ip_hlen = (*ip)->ihl * 4;
+    *icmp = (struct icmphdr *)(buf + *ip_hlen);
+    return (true);
+}
+
+static void update_rtt_stats(t_stat *stat, double rtt)
+{
+    if (stat->recv == 1)
+    {
+        stat->min_rtt = rtt;
+        stat->max_rtt = rtt;
+    }
+    else
+    {
+        if (rtt < stat->min_rtt)
+            stat->min_rtt = rtt;
+        if (rtt > stat->max_rtt)
+            stat->max_rtt = rtt;
+    }
+    stat->sum_rtt += rtt;
+}
+
+static double calculate_rtt(struct timeval *now, struct timeval *sent_tv)
+{
+    struct timeval diff;
+    ft_time_substract(&diff, now, sent_tv);
+    return (ft_time_to_ms(&diff));
+}
+
+static bool handle_timestamp_reply(t_conf *conf, t_stat *stat, struct icmphdr *icmp, struct sockaddr_in *from, ssize_t nbytes, int ip_hlen, struct timeval *now)
+{
+    char display_addr[256];
+    uint32_t *timestamps = (uint32_t *)(icmp + 1);
+    uint32_t otime = ntohl(timestamps[0]);
+    uint32_t rtime = ntohl(timestamps[1]);
+    uint32_t ttime = ntohl(timestamps[2]);
+
+    // Calculate RTT if you have the original timestamp stored
+    struct timeval *sent_tv = (struct timeval *)(timestamps + 3); // Adjust based on your packet structure
+    double rtt = calculate_rtt(now, sent_tv);
+
+    stat->recv++;
+    update_rtt_stats(stat, rtt);
+
+    handle_numeric(conf, from, display_addr, sizeof(display_addr));
+
+    // Timestamp replies always print, regardless of quiet flag
+    printf("%ld bytes from %s: icmp_seq=%d time=%.1f ms\n", nbytes - ip_hlen, display_addr, ntohs(icmp->un.echo.sequence), rtt);
+    printf("icmp_otime = %u\n", otime);
+    printf("icmp_rtime = %u\n", rtime);
+    printf("icmp_ttime = %u\n", ttime);
+
+    return (true);
+}
+
+static bool handle_echo_reply(t_conf *conf, t_stat *stat, struct icmphdr *icmp, struct iphdr *ip, struct sockaddr_in *from, ssize_t nbytes, int ip_hlen, struct timeval *now, char *buf)
+{
+    if (ntohs(icmp->un.echo.id) != (conf->pid & 0xFFFF))
+        return (false);
+
+    char display_addr[256];
+    struct timeval *sent_tv = (struct timeval *)(buf + ip_hlen + sizeof(struct icmphdr));
+    double rtt = calculate_rtt(now, sent_tv);
+
+    stat->recv++;
+    update_rtt_stats(stat, rtt);
+
+    handle_numeric(conf, from, display_addr, sizeof(display_addr));
+
+    // Echo replies respect the quiet flag
+    if (!HAS_FLAG(conf, FLAG_QUIET))
+        printf("%ld bytes from %s: icmp_seq=%d ttl=%d time=%.1f ms\n", nbytes - ip_hlen, display_addr, ntohs(icmp->un.echo.sequence), ip->ttl, rtt);
+
+    return (true);
+}
+
+static ssize_t recv_packet(t_conf *conf, struct sockaddr_in *from, char *buf, size_t buf_size)
+{
+    struct iovec iov;
+    struct msghdr msg;
 
     ft_memset(&msg, 0, sizeof(msg));
-    msg.msg_name = &from;
-    msg.msg_namelen = sizeof(from);
+    msg.msg_name = from;
+    msg.msg_namelen = sizeof(*from);
     iov.iov_base = buf;
-    iov.iov_len = sizeof(buf);
+    iov.iov_len = buf_size;
     msg.msg_iov = &iov;
     msg.msg_iovlen = 1;
 
-    ssize_t nbytes = recvmsg(conf->socket_fd, &msg, 0);
+    return (recvmsg(conf->socket_fd, &msg, 0));
+}
+
+static bool recv_ping(t_conf *conf, t_stat *stat)
+{
+    char buf[1024];
+    struct sockaddr_in from;
+    struct timeval now;
+    struct iphdr *ip;
+    struct icmphdr *icmp;
+    int ip_hlen;
+
+    ssize_t nbytes = recv_packet(conf, &from, buf, sizeof(buf));
     if (nbytes < 0)
     {
         if (errno == EAGAIN || errno == EWOULDBLOCK)
@@ -183,48 +270,21 @@ static bool recv_ping(t_conf *conf, t_stat *stat)
     }
 
     gettimeofday(&now, NULL);
+    get_packet_data(buf, nbytes, &ip, &icmp, &ip_hlen);
 
-    struct iphdr *ip = (struct iphdr *)buf;
-    int ip_hlen = ip->ihl * 4;
-    struct icmphdr *icmp = (struct icmphdr *)(buf + ip_hlen);
-
-    // check if it's our echo reply
-    if (ntohs(icmp->un.echo.id) == (conf->pid & 0xFFFF) && icmp->type == ICMP_ECHOREPLY)
+    // Handle different ICMP types
+    switch (icmp->type)
     {
-        stat->recv++;
+        case ICMP_TSTAMPREPLY:
+            return (handle_timestamp_reply(conf, stat, icmp, &from, nbytes, ip_hlen, &now));
 
-        // extract timestamp and cal rtt
-        sent_tv = (struct timeval *)(buf + ip_hlen + sizeof(struct icmphdr));
-        ft_time_substract(&diff, &now, sent_tv);
-        double rtt = ft_time_to_ms(&diff);
+        case ICMP_ECHOREPLY:
+            return (handle_echo_reply(conf, stat, icmp, ip, &from, nbytes, ip_hlen, &now, buf));
 
-        // update stats
-        if (stat->recv == 1)
-        {
-            stat->min_rtt = rtt;
-            stat->max_rtt = rtt;
-        }
-        else
-        {
-            if (rtt < stat->min_rtt)
-                stat->min_rtt = rtt;
-            if (rtt > stat->max_rtt)
-                stat->max_rtt = rtt;
-        }
-        stat->sum_rtt += rtt;
-
-        handle_numeric(conf, &from, display_addr, sizeof(display_addr));
-        if (!HAS_FLAG(conf, FLAG_QUIET))
-            printf("%ld bytes from %s: icmp_seq=%d ttl=%d time=%.1f ms\n",
-                   nbytes - ip_hlen, display_addr,
-                   ntohs(icmp->un.echo.sequence), ip->ttl, rtt);
-
-        return (true);
+        default:
+            handle_verbose(conf, icmp, &from);
+            return (false);
     }
-    else
-        handle_verbose(conf, icmp, &from);
-
-    return (false);
 }
 
 

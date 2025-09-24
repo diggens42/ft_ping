@@ -6,7 +6,7 @@
 /*   By: fwahl <fwahl@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/09/06 02:45:50 by fwahl             #+#    #+#             */
-/*   Updated: 2025/09/24 17:49:47 by fwahl            ###   ########.fr       */
+/*   Updated: 2025/09/24 17:51:47 by fwahl            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -95,9 +95,9 @@ void print_ping_header(t_conf *conf)
     else
     {
         printf("PING %s (%s) ", conf->tar, conf->res_ip);
-        if (conf->opts.packet_type == 13)
+        if (conf->opts.packet_type == ICMP_TSTAMP)
             printf("sending timestamp request\n");
-        if (conf->opts.packet_type == 17)
+        if (conf->opts.packet_type == ICMP_MASKREQ)
             printf("sending address mask request\n");
     }
 }
