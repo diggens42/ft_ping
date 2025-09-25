@@ -6,12 +6,12 @@
 /*   By: fwahl <fwahl@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/09/06 05:56:17 by fwahl             #+#    #+#             */
-/*   Updated: 2025/09/25 18:57:21 by fwahl            ###   ########.fr       */
+/*   Updated: 2025/09/25 20:00:18 by fwahl            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "../include/ft_ping.h"
-
+/*
 static void handle_verbose(t_conf *conf, struct icmphdr *icmp, struct sockaddr_in *from)
 {
     if (!HAS_FLAG(conf, FLAG_VERBOSE))
@@ -37,6 +37,49 @@ static void handle_verbose(t_conf *conf, struct icmphdr *icmp, struct sockaddr_i
         default:
             printf("From %s: type=%d code=%d\n",
                    addr_str, icmp->type, icmp->code);
+    }
+}
+*/
+
+static void handle_verbose(t_conf *conf, struct icmphdr *icmp, struct sockaddr_in *from, ssize_t nbytes, struct iphdr *ip)
+{
+    if (!HAS_FLAG(conf, FLAG_VERBOSE))
+        return ;
+
+    char    display_addr[256];
+    handle_numeric(conf, from, display_addr, sizeof(display_addr));
+
+    switch (icmp->type)
+    {
+        case (ICMP_UNREACH):
+            printf("%ld bytes from %s: Destination Unreachable", nbytes, display_addr);
+            switch (icmp->code)
+            {
+                case (ICMP_UNREACH_NET):
+                    printf(" (Network Unreachable)");
+                    break ;
+                case (ICMP_UNREACH_HOST):
+                    printf(" (Host Unreachable)");
+                    break ;
+                case (ICMP_UNREACH_PROTOCOL):
+                    printf(" (Protocol Unreachable)");
+                    break ;
+                case (ICMP_UNREACH_PORT):
+                    printf(" (Port Unreachable)");
+                    break ;
+                case (ICMP_UNREACH_NEEDFRAG):
+                    printf(" (Fragmentation needed)");
+                    break ;
+                case (ICMP_UNREACH_SRCFAIL):
+                    printf(" (Source Routing failed)");
+                    break ;
+                default:
+                    printf(" (Code %d)", icmp->code);
+                    break ;
+            }
+            printf("\n");
+            print_ip_hdr_dump(ip, nbytes);
+            break ;
     }
 }
 
