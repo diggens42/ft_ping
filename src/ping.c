@@ -6,7 +6,7 @@
 /*   By: fwahl <fwahl@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/09/06 05:56:17 by fwahl             #+#    #+#             */
-/*   Updated: 2025/09/25 20:56:33 by fwahl            ###   ########.fr       */
+/*   Updated: 2025/09/25 21:10:43 by fwahl            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -303,10 +303,28 @@ static bool recv_ping(t_conf *conf, t_stat *stat)
     ip_hlen = ip->ihl * 4;
     icmp = (struct icmphdr *)(buf + ip_hlen);
 
+    if (icmp->type != ICMP_ECHOREPLY && icmp->type != ICMP_TSTAMPREPLY)
+    {
+        struct iphdr *og_ip_hdr = (struct iphdr *)(icmp + 1);
+        struct icmphdr *og_icmp_hdr = (struct icmphdr *)((char *)og_ip_hdr + (og_ip_hdr->ihl * 4));
+
+        if (ntohs(og_icmp_hdr->un.echo.id) == (conf->pid & 0xFFFF))
+        {
+            handle_verbose(conf, icmp, &from, nbytes, ip);
+            return (true);
+        }
+        else
+        {
+            if (HAS_FLAG(conf, FLAG_VERBOSE))
+                handle_verbose(conf, icmp, &from, nbytes, ip);
+            return (false);
+        }
+    }
+
     //check if its our reply package
     if (ntohs(icmp->un.echo.id) != (conf->pid & 0xFFFF))
     {
-        handle_verbose(conf, icmp, &from);
+        handle_verbose(conf, icmp, &from, nbytes, ip);
         return (false);
     }
 
@@ -360,7 +378,7 @@ static bool recv_ping(t_conf *conf, t_stat *stat)
         return (true);
     }
 
-    handle_verbose(conf, icmp, &from);
+    handle_verbose(conf, icmp, &from, nbytes, ip);
     return (true);
 }
 
