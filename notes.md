@@ -86,19 +86,18 @@ Options controlling ICMP request types:
   --echo              send ICMP_ECHO packets (default)
   --mask              same as --address
   --timestamp         send ICMP_TIMESTAMP packets
-  -t, --type=TYPE     send TYPE packets
+  -t, --type=TYPE     send TYPE packets ✅
 
 Options valid for all request types:
-  -c, --count=COUNT   stop after sending (and receiving) COUNT ECHO_RESPONSE packets
+  -c, --count=COUNT   stop after sending (and receiving) COUNT ECHO_RESPONSE packets ✅
   -d, --debug         set the SO_DEBUG option on the socket being used
-  -f, --flood         flood ping; outputs packets as fast as they come back or 100 times per second, whichever is more
-  -i, --interval=WAIT wait WAIT seconds between sending each packet
-  -l, --preload=PRELOAD
-                       if preload is specified, ping sends that many packets as fast as possible before falling into normal mode of behavior
+  <!-- -f, --flood         flood ping; outputs packets as fast as they come back or 100 times per second, whichever is more -->
+  -i, --interval=WAIT wait WAIT seconds between sending each packet ✅
+  <!-- -l, --preload=PRELOAD if preload is specified, ping sends that many packets as fast as possible before falling into normal mode of behavior -->
   -n, --numeric       numeric output only; no attempt will be made to lookup symbolic names for host addresses
   -p, --pattern=PATTERN
                        specify up to 16 "pad" bytes to fill out the packet you send
-  -q, --quiet         quiet output; only summary is printed at start and finish
+  -q, --quiet         quiet output; only summary is printed at start and finish ✅
   -R, --route         record route; includes RECORD_ROUTE option; prints the route
   -r, --ignore-routing
                        bypass normal routing and send directly to a host on an attached network
@@ -112,7 +111,7 @@ Options valid for all request types:
   --ip-timestamp=FLAG
                        include timestamp option; FLAG is one of "tsonly" or "tsaddr"
 
-  -?, --help          display this help list
+  -?, --help          display this help list ✅
   --usage             display a short usage message
   -V, --version       print the program version
 
@@ -129,9 +128,17 @@ sudo setcap cap_net_raw+ep ./ft_ping for socket creation error
 Supported Types in GNU Inetutils Ping
 The GNU Inetutils ping --type or -t flag accepts these values:
 
-echo - Send ICMP_ECHO requests (this is the default)
+fix print for timestamp replies (no rtt)
+
+types to add :
 address - Send ICMP_ADDRESS packets (requires root privileges)
 mask - Same as address (alias for address requests)
-timestamp - Send ICMP_TIMESTAMP packets GNUDebian Manpages
+
 
 -->not case sensitive
+
+
+### test cases:
+
+./ping -v --ttl=1 8.8.8.8
+-->should print ttl exceeded error msg and ip header dump

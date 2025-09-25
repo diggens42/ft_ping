@@ -6,7 +6,7 @@
 /*   By: fwahl <fwahl@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/09/06 02:45:50 by fwahl             #+#    #+#             */
-/*   Updated: 2025/09/24 20:06:38 by fwahl            ###   ########.fr       */
+/*   Updated: 2025/09/25 19:40:14 by fwahl            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -88,7 +88,7 @@ void print_ping_header(t_conf *conf)
             conf->res_ip,
             conf->opts.packet_size);
         if (HAS_FLAG(conf, FLAG_VERBOSE))
-            printf("id 0x%04x = %u\n", conf->pid, conf->pid);
+            printf(", id 0x%04x = %u\n", conf->pid, conf->pid);
         else
             printf("\n");
     }
@@ -100,6 +100,36 @@ void print_ping_header(t_conf *conf)
         if (conf->opts.packet_type == ICMP_MASKREQ)
             printf("sending address mask request\n");
     }
+}
+
+void    print_ip_hdr_dump(struct iphdr *ip, ssize_t nbytes)
+{
+    uint8_t *hdr = (uint8_t *)ip;
+    int     hdr_len = ip->ihl * 4;
+
+    printf("IP Hdr Dump:\n ");
+    for (int i = 0; i < hdr_len; i+=2)
+    {
+        if (i + 1 < hdr_len)
+            printf("%02x%02x ", hdr[i], hdr[i + 1]);
+        else
+            printf("%02x00 ", hdr[i]);
+    }
+    printf("\n");
+    printf("Vr HL TOS  Len   ID  Flg  off  TTL Pro  cks      Src       Dst\n");
+    printf(" %x  %x  %02x %04x %04x   %x %04x  %02x  %02x %04x %s  %s\n",
+           (ip->version),
+           (ip->ihl),
+           (ip->tos),
+           ntohs(ip->tot_len),
+           ntohs(ip->id),
+           (ntohs(ip->frag_off) >> 13) & 0x7,  // flags
+           ntohs(ip->frag_off) & 0x1fff,       // fragment offset
+           (ip->ttl),
+           (ip->protocol),
+           ntohs(ip->check),
+           inet_ntoa(*(struct in_addr *)&ip->saddr),
+           inet_ntoa(*(struct in_addr *)&ip->daddr));
 }
 
 double	get_ms(struct timeval *sent, struct timeval *recv)

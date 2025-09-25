@@ -6,7 +6,7 @@
 /*   By: fwahl <fwahl@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/09/06 05:56:17 by fwahl             #+#    #+#             */
-/*   Updated: 2025/09/24 21:36:44 by fwahl            ###   ########.fr       */
+/*   Updated: 2025/09/25 18:57:21 by fwahl            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -76,8 +76,8 @@ static void handle_interval(t_conf *conf, t_timing *timing)
     long            elapsed_us;
     long            wait_us;
 
-    if (!g_run || HAS_FLAG(conf, FLAG_FLOOD))
-        return;
+    if (!g_run)
+        return ;
 
     gettimeofday(&now, NULL);
     ft_time_substract(&diff, &now, &timing->last_send);
