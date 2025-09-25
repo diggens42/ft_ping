@@ -6,7 +6,7 @@
 /*   By: fwahl <fwahl@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/09/06 05:56:17 by fwahl             #+#    #+#             */
-/*   Updated: 2025/09/25 20:00:18 by fwahl            ###   ########.fr       */
+/*   Updated: 2025/09/25 20:45:01 by fwahl            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -79,6 +79,27 @@ static void handle_verbose(t_conf *conf, struct icmphdr *icmp, struct sockaddr_i
             }
             printf("\n");
             print_ip_hdr_dump(ip, nbytes);
+            break ;
+
+        case (ICMP_TIMXCEED):
+            printf("%ld bytes from %s: Time to live exceeded", nbytes, display_addr);
+            if (icmp->code == ICMP_TIMXCEED_INTRANS)
+                printf(" (Time to live exceeded in transit)");
+            else if (icmp->code == ICMP_TIMXCEED_REASS)
+                printf(" (Fragment reassembly time exceeded)");
+            printf("\n");
+            print_ip_header_dump(ip, nbytes);
+            break ;
+
+        case (ICMP_SOURCEQUENCH):
+            printf("%ld bytes from %s: Source Quench\n", nbytes, display_addr);
+            print_ip_header_dump(ip, nbytes);
+            break ;
+
+        default:
+            printf("%ld bytes from %s: type=%d code=%d\n", nbytes, display_addr, icmp->type, icmp->code);
+            if (icmp->type != ICMP_ECHOREPLY && icmp->type != ICMP_TSTAMPREPLY)
+                print_ip_header_dump(ip, nbytes);
             break ;
     }
 }
