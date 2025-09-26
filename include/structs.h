@@ -6,7 +6,7 @@
 /*   By: fwahl <fwahl@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/09/06 15:05:29 by fwahl             #+#    #+#             */
-/*   Updated: 2025/09/15 17:36:51 by fwahl            ###   ########.fr       */
+/*   Updated: 2025/09/26 17:13:01 by fwahl            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -63,6 +63,15 @@ typedef struct s_packet
     struct icmphdr      header; // ICMP header (type, code, checksum, id, sequence)
     char                data[]; //ICMP payload
 }   t_packet;
+
+typedef struct s_packet_info
+{
+    struct iphdr        *ip;
+    struct icmphdr      *icmp;
+    ssize_t             nbytes;
+    int                 ip_hlen;
+    struct sockaddr_in  from;
+}   t_packet_info;
 
 typedef struct s_opt_def
 {
