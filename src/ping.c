@@ -6,7 +6,7 @@
 /*   By: fwahl <fwahl@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/09/06 05:56:17 by fwahl             #+#    #+#             */
-/*   Updated: 2025/09/26 17:43:12 by fwahl            ###   ########.fr       */
+/*   Updated: 2025/09/26 18:19:16 by fwahl            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -65,7 +65,7 @@ static void handle_verbose(t_ping *ping, t_packet_info *pkt)
                     break;
             }
             printf("\n");
-            print_ip_hdr_dump(pkt->ip);
+            print_ip_hdr_dump(pkt->ip, pkt->nbytes);
             break;
 
         case ICMP_TIMXCEED:
@@ -75,12 +75,12 @@ static void handle_verbose(t_ping *ping, t_packet_info *pkt)
             else if (pkt->icmp->code == ICMP_TIMXCEED_REASS)
                 printf(" (Fragment reassembly time exceeded)");
             printf("\n");
-            print_ip_hdr_dump(pkt->ip);
+            print_ip_hdr_dump(pkt->ip, pkt->nbytes);
             break;
 
         case ICMP_SOURCEQUENCH:
             printf("%ld bytes from %s: Source Quench\n", pkt->nbytes, display_addr);
-            print_ip_hdr_dump(pkt->ip);
+            print_ip_hdr_dump(pkt->ip, pkt->nbytes);
             break;
 
         case ICMP_REDIRECT:
@@ -101,20 +101,20 @@ static void handle_verbose(t_ping *ping, t_packet_info *pkt)
                     break;
             }
             printf("\n");
-            print_ip_hdr_dump(pkt->ip);
+            print_ip_hdr_dump(pkt->ip, pkt->nbytes);
             break;
 
         case ICMP_PARAMPROB:
             printf("%ld bytes from %s: Parameter Problem (Pointer = %d)\n",
                    pkt->nbytes, display_addr, pkt->icmp->un.gateway);
-            print_ip_hdr_dump(pkt->ip);
+            print_ip_hdr_dump(pkt->ip, pkt->nbytes);
             break;
 
         default:
             printf("%ld bytes from %s: type=%d code=%d\n",
                    pkt->nbytes, display_addr, pkt->icmp->type, pkt->icmp->code);
             if (pkt->icmp->type != ICMP_ECHOREPLY && pkt->icmp->type != ICMP_TSTAMPREPLY)
-                print_ip_hdr_dump(pkt->ip);
+                print_ip_hdr_dump(pkt->ip, pkt->nbytes);
             break;
     }
 }
@@ -177,7 +177,7 @@ static void handle_pattern(t_conf *conf, char *data, int offset)
     }
 }
 
-static void handle_echo_reply(t_ping *ping, t_packet_info *pkt, char *buf)
+static void process_echo_reply(t_ping *ping, t_packet_info *pkt, char *buf)
 {
     t_conf *conf = &ping->conf;
     t_stat *stat = &ping->stat;
@@ -193,7 +193,7 @@ static void handle_echo_reply(t_ping *ping, t_packet_info *pkt, char *buf)
     ft_time_substract(&diff, &now, sent_tv);
     rtt = ft_time_to_ms(&diff);
 
-    // Update rtt statistics
+    // Update statistics
     if (stat->recv == 1)
     {
         stat->min_rtt = rtt;
@@ -218,7 +218,7 @@ static void handle_echo_reply(t_ping *ping, t_packet_info *pkt, char *buf)
     }
 }
 
-static void handle_timestamp_reply(t_ping *ping, t_packet_info *pkt)
+static void process_timestamp_reply(t_ping *ping, t_packet_info *pkt)
 {
     t_conf *conf = &ping->conf;
     t_stat *stat = &ping->stat;
@@ -365,14 +365,14 @@ static bool recv_ping(t_ping *ping)
     // Handle Timestamp Reply
     if (pkt.icmp->type == ICMP_TSTAMPREPLY)
     {
-        handle_timestamp_reply(ping, &pkt);
+        process_timestamp_reply(ping, &pkt);
         return (true);
     }
 
     // Handle Echo Reply
     if (pkt.icmp->type == ICMP_ECHOREPLY)
     {
-        handle_echo_reply(ping, &pkt, buf);
+        process_echo_reply(ping, &pkt, buf);
         return (true);
     }
 
@@ -384,53 +384,49 @@ void ft_ping(t_ping *ping)
 {
     uint32_t seq = 0;
     t_timing timing;
-    struct timeval last_packet_time;
-    bool stop = false;
 
     gettimeofday(&timing.start, NULL);
     gettimeofday(&timing.last_send, NULL);
     ping->stat.start = timing.start;
     print_ping_header(&ping->conf);
 
-    while (g_run || stop)
+    while (g_run)
     {
-        if (handle_timeout(&ping->conf, &timing))
+        if (handle_timeout(&ping->conf, &timing)) // -w flag
             break;
 
-        if (g_run && !send_ping(ping, seq))
+        if (!send_ping(ping, seq))
         {
             if (HAS_FLAG(&ping->conf, FLAG_VERBOSE))
                 fprintf(stderr, "ping: failed to send packet\n");
-        }
-
-        if (g_run)
-        {
-            gettimeofday(&last_packet_time, NULL);
-            seq++;
         }
 
         while (recv_ping(ping))
         {
         }
 
-        if (!g_run && !stop)
+        seq++;
+        if (handle_count(&ping->conf, seq)) // -c flag
+            break;
+        handle_interval(&ping->conf, &timing); // -i flag
+    }
+
+    if (!g_run && ping->stat.recv < ping->stat.sent)
+    {
+        struct timeval wait_start, now, diff;
+        gettimeofday(&wait_start, NULL);
+
+        while (ping->stat.recv < ping->stat.sent)
         {
-            stop = true;
-            struct timeval now, diff;
+            recv_ping(ping);
+
             gettimeofday(&now, NULL);
-            ft_time_substract(&diff, &now, &last_packet_time);
+            ft_time_substract(&diff, &now, &wait_start);
 
-            if (ft_time_to_ms(&diff) > (ping->conf.opts.linger * 1000))
+            if (ft_time_to_ms(&diff) > 1000)
                 break;
-        }
 
-        if (g_run)
-        {
-            if (handle_count(&ping->conf, seq))
-                break;
-            handle_interval(&ping->conf, &timing);
+            usleep(1000);
         }
-        else if (stop)
-            usleep(10000);
     }
 }
