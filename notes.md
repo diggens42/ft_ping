@@ -91,9 +91,9 @@ Options controlling ICMP request types:
 Options valid for all request types:
   -c, --count=COUNT   stop after sending (and receiving) COUNT ECHO_RESPONSE packets ✅
   -d, --debug         set the SO_DEBUG option on the socket being used
-  <!-- -f, --flood         flood ping; outputs packets as fast as they come back or 100 times per second, whichever is more -->
+  -f, --flood         flood ping; outputs packets as fast as they come back or 100 times per second, whichever is more
   -i, --interval=WAIT wait WAIT seconds between sending each packet ✅
-  <!-- -l, --preload=PRELOAD if preload is specified, ping sends that many packets as fast as possible before falling into normal mode of behavior -->
+  -l, --preload=PRELOAD if preload is specified, ping sends that many packets as fast as possible before falling into normal mode of behavior
   -n, --numeric       numeric output only; no attempt will be made to lookup symbolic names for host addresses
   -p, --pattern=PATTERN
                        specify up to 16 "pad" bytes to fill out the packet you send
@@ -142,3 +142,27 @@ mask - Same as address (alias for address requests)
 
 ./ping -v --ttl=1 8.8.8.8 (verbose --> ICMP_TIMXCEED)
 -->should print ttl exceeded error msg and ip header dump
+
+
+### flag checklist
+
+    Options controlling ICMP request types:\n";
+      -t, --type=TYPE            send TYPE packets\n\n"; ✅
+
+    Options valid for all request types:\n";
+      -c, --count=NUMBER         stop after sending NUMBER packets\n"; ✅
+      -d, --debug                set the SO_DEBUG option\n"; ❌ --> not sure how to test this, legacy feature so might just remove it.....
+      -i, --interval=NUMBER      wait NUMBER seconds between sending each packet\n"; ✅
+      -n, --numeric              do not resolve host address\n";✅
+      -r, --ignore-routing       send directly to a host on an attached network\n"; ❌ --> not sure how to test this, seems like a bullshit feature
+          --ttl=N                specify N as time-to-live\n"; ✅
+      -T, --tos=NUM              set Type-of-Service (TOS) to NUM\n"; ❌ --> not sure how to test this
+      -v, --verbose              verbose output\n"; ✅
+      -w, --timeout=N            stop after N seconds\n";   ❌ --> packet loss on timeout
+      -W, --linger=N             number of seconds to wait for response\n\n"; ❌ --> not sure how to test this
+
+    Options valid for --echo requests:\n\n";
+      -p, --pattern=PATTERN      fill ICMP packet with given pattern (hex)\n"; ❌ --> REALLY not sure how to test this
+      -q, --quiet                quiet output\n"; ✅
+      -s, --size=NUMBER          send NUMBER of data octets\n";   ✅
+      -?, --help                 display this help list\n\n";  ✅
