@@ -6,7 +6,7 @@
 /*   By: fwahl <fwahl@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/09/06 05:56:17 by fwahl             #+#    #+#             */
-/*   Updated: 2025/09/26 17:35:53 by fwahl            ###   ########.fr       */
+/*   Updated: 2025/09/26 17:43:12 by fwahl            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -384,40 +384,53 @@ void ft_ping(t_ping *ping)
 {
     uint32_t seq = 0;
     t_timing timing;
-    bool stopped_send = false;
+    struct timeval last_packet_time;
+    bool stop = false;
 
     gettimeofday(&timing.start, NULL);
     gettimeofday(&timing.last_send, NULL);
     ping->stat.start = timing.start;
     print_ping_header(&ping->conf);
 
-    while (g_run)
+    while (g_run || stop)
     {
         if (handle_timeout(&ping->conf, &timing))
-            break ;
+            break;
 
-        if (!stopped_send)
+        if (g_run && !send_ping(ping, seq))
         {
-            if (!send_ping(ping, seq))
-            {
-                if (HAS_FLAG(&ping->conf, FLAG_VERBOSE))
-                    fprintf(stderr, "ping: failed to send packet\n");
-            }
-            seq++;
+            if (HAS_FLAG(&ping->conf, FLAG_VERBOSE))
+                fprintf(stderr, "ping: failed to send packet\n");
+        }
 
-            if (handle_count(&ping->conf, seq))
-                stopped_send = true;
+        if (g_run)
+        {
+            gettimeofday(&last_packet_time, NULL);
+            seq++;
         }
 
         while (recv_ping(ping))
         {
         }
 
-        if (stopped_send && (ping->stat.recv >= ping->stat.sent ||
-            handle_timeout(&ping->conf, &timing)))
-            break ;
+        if (!g_run && !stop)
+        {
+            stop = true;
+            struct timeval now, diff;
+            gettimeofday(&now, NULL);
+            ft_time_substract(&diff, &now, &last_packet_time);
 
-        if (!stopped_send)
+            if (ft_time_to_ms(&diff) > (ping->conf.opts.linger * 1000))
+                break;
+        }
+
+        if (g_run)
+        {
+            if (handle_count(&ping->conf, seq))
+                break;
             handle_interval(&ping->conf, &timing);
+        }
+        else if (stop)
+            usleep(10000);
     }
 }
