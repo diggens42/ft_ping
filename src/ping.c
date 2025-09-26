@@ -6,7 +6,7 @@
 /*   By: fwahl <fwahl@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/09/06 05:56:17 by fwahl             #+#    #+#             */
-/*   Updated: 2025/09/26 18:59:30 by fwahl            ###   ########.fr       */
+/*   Updated: 2025/09/26 20:22:58 by fwahl            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -155,27 +155,27 @@ static void handle_interval(t_conf *conf, t_timing *timing)
     gettimeofday(&timing->last_send, NULL);
 }
 
-static void handle_pattern(t_conf *conf, char *data, int offset)
-{
-    if (conf->opts.pattern_len > 0)
-    {
-        // Pattern flag on
-        while (offset < conf->opts.packet_size)
-        {
-            int tmp = conf->opts.pattern_len;
-            if (offset + tmp > conf->opts.packet_size)
-                tmp = conf->opts.packet_size - offset;
-            ft_memcpy(data + offset, conf->opts.pattern, tmp);
-            offset += tmp;
-        }
-    }
-    else
-    {
-        // Default pattern
-        for (int i = offset; i < conf->opts.packet_size; i++)
-            data[i] = i & 0xFF;
-    }
-}
+// static void handle_pattern(t_conf *conf, char *data, int offset)
+// {
+//     if (conf->opts.pattern_len > 0)
+//     {
+//         // Pattern flag on
+//         while (offset < conf->opts.packet_size)
+//         {
+//             int tmp = conf->opts.pattern_len;
+//             if (offset + tmp > conf->opts.packet_size)
+//                 tmp = conf->opts.packet_size - offset;
+//             ft_memcpy(data + offset, conf->opts.pattern, tmp);
+//             offset += tmp;
+//         }
+//     }
+//     else
+//     {
+//         // Default pattern
+//         for (int i = offset; i < conf->opts.packet_size; i++)
+//             data[i] = i & 0xFF;
+//     }
+// }
 
 static void process_echo_reply(t_ping *ping, t_packet_info *pkt, char *buf)
 {
@@ -283,7 +283,7 @@ static bool send_ping(t_ping *ping, int seq)
         struct timeval tv_now;
         gettimeofday(&tv_now, NULL);
         ft_memcpy(packet->data, &tv_now, sizeof(tv_now));
-        handle_pattern(conf, packet->data, sizeof(tv_now));
+        // handle_pattern(conf, packet->data, sizeof(tv_now));
     }
 
     packet->header.checksum = get_checksum(packet, packet_size);

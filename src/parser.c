@@ -6,7 +6,7 @@
 /*   By: fwahl <fwahl@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/09/10 01:15:51 by fwahl             #+#    #+#             */
-/*   Updated: 2025/09/24 21:28:02 by fwahl            ###   ########.fr       */
+/*   Updated: 2025/09/26 20:19:16 by fwahl            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -45,21 +45,21 @@ static int parse_timeout(const char *val, t_conf *conf)
     return (0);
 }
 
-static int parse_linger(const char *val, t_conf *conf)
-{
-    char *endptr;
-    long n;
+// static int parse_linger(const char *val, t_conf *conf)
+// {
+//     char *endptr;
+//     long n;
 
-    errno = 0;
-    n = ft_strtol(val, &endptr, 10);
-    if (errno == ERANGE || n < 0 || n > 3600 || *endptr != '\0')
-    {
-        fprintf(stderr, "ft_ping: bad linger time\n");
-        return (PARSE_ERROR);
-    }
-    conf->opts.linger = (uint32_t)n;
-    return (0);
-}
+//     errno = 0;
+//     n = ft_strtol(val, &endptr, 10);
+//     if (errno == ERANGE || n < 0 || n > 3600 || *endptr != '\0')
+//     {
+//         fprintf(stderr, "ft_ping: bad linger time\n");
+//         return (PARSE_ERROR);
+//     }
+//     conf->opts.linger = (uint32_t)n;
+//     return (0);
+// }
 
 static int  parse_ttl(const char *val, t_conf *conf)
 {
@@ -82,30 +82,30 @@ static int  parse_ttl(const char *val, t_conf *conf)
     return (0);
 }
 
-static int  parse_pattern(const char *val, t_conf *conf)
-{
-    size_t  len = ft_strlen(val);
-    if (len > 32) // 16 bytes --> 32 hex chars
-    {
-        fprintf(stderr, "ft_ping: pattern too long (max 16 bytes)\n");
-        return (PARSE_ERROR);
-    }
-    //converthex string to bytes
+// static int  parse_pattern(const char *val, t_conf *conf)
+// {
+//     size_t  len = ft_strlen(val);
+//     if (len > 32) // 16 bytes --> 32 hex chars
+//     {
+//         fprintf(stderr, "ft_ping: pattern too long (max 16 bytes)\n");
+//         return (PARSE_ERROR);
+//     }
+//     //converthex string to bytes
 
-    for (size_t i = 0; i < len && conf->opts.pattern_len < 16; i += 2)
-    {
-        char hex[3] = {val[i], val[i + 1] ? val[i + 1] : '0', '\0'};
-        char *endptr;
-        long nbyte = ft_strtol(hex, &endptr, 16);
-        if (*endptr != '\0' || nbyte < 0 || nbyte > UINT8_MAX)
-        {
-            fprintf(stderr, "ft_ping: bad pattern\n");
-            return (PARSE_ERROR);
-        }
-        conf->opts.pattern[conf->opts.pattern_len++] = (uint8_t)nbyte;
-    }
-    return (0);
-}
+//     for (size_t i = 0; i < len && conf->opts.pattern_len < 16; i += 2)
+//     {
+//         char hex[3] = {val[i], val[i + 1] ? val[i + 1] : '0', '\0'};
+//         char *endptr;
+//         long nbyte = ft_strtol(hex, &endptr, 16);
+//         if (*endptr != '\0' || nbyte < 0 || nbyte > UINT8_MAX)
+//         {
+//             fprintf(stderr, "ft_ping: bad pattern\n");
+//             return (PARSE_ERROR);
+//         }
+//         conf->opts.pattern[conf->opts.pattern_len++] = (uint8_t)nbyte;
+//     }
+//     return (0);
+// }
 
 static int parse_tos(const char *val, t_conf *conf)
 {
@@ -185,18 +185,18 @@ static const t_opt_def opt_table[] =
 {
     {"-v", "--verbose",        false,  FLAG_VERBOSE, NULL},
     {"-?", "--help",           false,  FLAG_HELP,    NULL},
-    {"-r", "--ignore-routing", false,  FLAG_NOROUTE, NULL},
+    // {"-r", "--ignore-routing", false,  FLAG_NOROUTE, NULL},
     {"-n", "--numeric",        false,  FLAG_NUMERIC, NULL},
     {"-q", "--quiet",          false,  FLAG_QUIET,   NULL},
-    {"-f", "--flood",          false,  FLAG_FLOOD,   NULL},
-    {"-d", "--debug",          false,  FLAG_DEBUG,   NULL},
+    // {"-f", "--flood",          false,  FLAG_FLOOD,   NULL},
+    // {"-d", "--debug",          false,  FLAG_DEBUG,   NULL},
 
     {"-c", "--count",          true, 0, parse_count},
     {"-i", "--interval",       true, 0, parse_interval},
     {"-s", "--size",           true, 0, parse_size},
     {"-w", "--timeout",        true, 0, parse_timeout},
-    {"-W", "--linger",         true, 0, parse_linger},
-    {"-p", "--pattern",        true, 0, parse_pattern},
+    // {"-W", "--linger",         true, 0, parse_linger},
+    // {"-p", "--pattern",        true, 0, parse_pattern},
     {"-t", "--type",           true, 0, parse_type},
     {"-T", "--tos",            true, 0, parse_tos},
     {NULL, "--ttl",            true, 0, parse_ttl},

@@ -6,7 +6,7 @@
 /*   By: fwahl <fwahl@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/09/06 02:45:50 by fwahl             #+#    #+#             */
-/*   Updated: 2025/09/26 17:22:03 by fwahl            ###   ########.fr       */
+/*   Updated: 2025/09/26 20:20:22 by fwahl            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -22,18 +22,18 @@ void print_help(void)
 
     printf("Options valid for all request types:\n");
     printf("  -c, --count=NUMBER         stop after sending NUMBER packets\n");
-    printf("  -d, --debug                set the SO_DEBUG option\n");
+    // printf("  -d, --debug                set the SO_DEBUG option\n");
     printf("  -i, --interval=NUMBER      wait NUMBER seconds between sending each packet\n");
     printf("  -n, --numeric              do not resolve host address\n");
-    printf("  -r, --ignore-routing       send directly to a host on an attached network\n");
+    // printf("  -r, --ignore-routing       send directly to a host on an attached network\n");
     printf("      --ttl=N                specify N as time-to-live\n");
     printf("  -T, --tos=NUM              set Type-of-Service (TOS) to NUM\n");
     printf("  -v, --verbose              verbose output\n");
     printf("  -w, --timeout=N            stop after N seconds\n");
-    printf("  -W, --linger=N             number of seconds to wait for response\n\n");
+    // printf("  -W, --linger=N             number of seconds to wait for response\n\n");
 
     printf("Options valid for --echo requests:\n\n");
-    printf("  -p, --pattern=PATTERN      fill ICMP packet with given pattern (hex)\n");
+    // printf("  -p, --pattern=PATTERN      fill ICMP packet with given pattern (hex)\n");
     printf("  -q, --quiet                quiet output\n");
     printf("  -s, --size=NUMBER          send NUMBER of data octets\n");
     printf("  -?, --help                 display this help list\n\n");
