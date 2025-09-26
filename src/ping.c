@@ -6,7 +6,7 @@
 /*   By: fwahl <fwahl@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/09/06 05:56:17 by fwahl             #+#    #+#             */
-/*   Updated: 2025/09/26 18:19:16 by fwahl            ###   ########.fr       */
+/*   Updated: 2025/09/26 18:22:13 by fwahl            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -65,7 +65,7 @@ static void handle_verbose(t_ping *ping, t_packet_info *pkt)
                     break;
             }
             printf("\n");
-            print_ip_hdr_dump(pkt->ip, pkt->nbytes);
+            print_ip_hdr_dump(pkt->ip);
             break;
 
         case ICMP_TIMXCEED:
@@ -75,12 +75,12 @@ static void handle_verbose(t_ping *ping, t_packet_info *pkt)
             else if (pkt->icmp->code == ICMP_TIMXCEED_REASS)
                 printf(" (Fragment reassembly time exceeded)");
             printf("\n");
-            print_ip_hdr_dump(pkt->ip, pkt->nbytes);
+            print_ip_hdr_dump(pkt->ip);
             break;
 
         case ICMP_SOURCEQUENCH:
             printf("%ld bytes from %s: Source Quench\n", pkt->nbytes, display_addr);
-            print_ip_hdr_dump(pkt->ip, pkt->nbytes);
+            print_ip_hdr_dump(pkt->ip);
             break;
 
         case ICMP_REDIRECT:
@@ -101,20 +101,20 @@ static void handle_verbose(t_ping *ping, t_packet_info *pkt)
                     break;
             }
             printf("\n");
-            print_ip_hdr_dump(pkt->ip, pkt->nbytes);
+            print_ip_hdr_dump(pkt->ip);
             break;
 
         case ICMP_PARAMPROB:
             printf("%ld bytes from %s: Parameter Problem (Pointer = %d)\n",
                    pkt->nbytes, display_addr, pkt->icmp->un.gateway);
-            print_ip_hdr_dump(pkt->ip, pkt->nbytes);
+            print_ip_hdr_dump(pkt->ip);
             break;
 
         default:
             printf("%ld bytes from %s: type=%d code=%d\n",
                    pkt->nbytes, display_addr, pkt->icmp->type, pkt->icmp->code);
             if (pkt->icmp->type != ICMP_ECHOREPLY && pkt->icmp->type != ICMP_TSTAMPREPLY)
-                print_ip_hdr_dump(pkt->ip, pkt->nbytes);
+                print_ip_hdr_dump(pkt->ip);
             break;
     }
 }
