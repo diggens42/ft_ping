@@ -6,7 +6,7 @@
 /*   By: fwahl <fwahl@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/09/06 05:56:17 by fwahl             #+#    #+#             */
-/*   Updated: 2025/09/26 18:22:13 by fwahl            ###   ########.fr       */
+/*   Updated: 2025/09/26 18:59:30 by fwahl            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -70,10 +70,10 @@ static void handle_verbose(t_ping *ping, t_packet_info *pkt)
 
         case ICMP_TIMXCEED:
             printf("%ld bytes from %s: Time to live exceeded", pkt->nbytes, display_addr);
-            if (pkt->icmp->code == ICMP_TIMXCEED_INTRANS)
-                printf(" (Time to live exceeded in transit)");
-            else if (pkt->icmp->code == ICMP_TIMXCEED_REASS)
-                printf(" (Fragment reassembly time exceeded)");
+            // if (pkt->icmp->code == ICMP_TIMXCEED_INTRANS)
+            //     printf(" (Time to live exceeded in transit)");
+            // else if (pkt->icmp->code == ICMP_TIMXCEED_REASS)
+            //     printf(" (Fragment reassembly time exceeded)");
             printf("\n");
             print_ip_hdr_dump(pkt->ip);
             break;
@@ -208,8 +208,9 @@ static void process_echo_reply(t_ping *ping, t_packet_info *pkt, char *buf)
     }
     stat->sum_rtt += rtt;
 
-    // Print echo reply (respects quiet flag)
-    handle_numeric(conf, &pkt->from, display_addr, sizeof(display_addr));
+    // reference version always uses numeric as default! why does the flag even exist though?
+    // handle_numeric(conf, &pkt->from, display_addr, sizeof(display_addr));
+    inet_ntop(AF_INET, &pkt->from.sin_addr, display_addr, sizeof(display_addr));
     if (!HAS_FLAG(conf, FLAG_QUIET))
     {
         printf("%ld bytes from %s: icmp_seq=%d ttl=%d time=%.1f ms\n",

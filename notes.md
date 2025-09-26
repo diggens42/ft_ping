@@ -103,8 +103,8 @@ Options valid for all request types:
                        bypass normal routing and send directly to a host on an attached network
   -s, --size=PACKETSIZE
                        specify the number of data bytes to send
-  -v, --verbose       verbose output; lists non-ECHO_RESPONSE ICMP packets received
-  --ttl=N             set packet time-to-live to N
+  -v, --verbose       verbose output; lists non-ECHO_RESPONSE ICMP packets received ✅
+  --ttl=N             set packet time-to-live to N ✅
   -T, --tos=NUM       set Type-of-Service (TOS) to NUM
   -w, --timeout=N     stop after N seconds of sending packets
   -W, --linger=N      number of seconds to wait for response before quitting
@@ -140,5 +140,5 @@ mask - Same as address (alias for address requests)
 
 ### test cases:
 
-./ping -v --ttl=1 8.8.8.8
+./ping -v --ttl=1 8.8.8.8 (verbose --> ICMP_TIMXCEED)
 -->should print ttl exceeded error msg and ip header dump
