@@ -6,7 +6,7 @@
 /*   By: fwahl <fwahl@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/09/06 02:45:50 by fwahl             #+#    #+#             */
-/*   Updated: 2025/09/25 19:40:14 by fwahl            ###   ########.fr       */
+/*   Updated: 2025/09/26 17:22:03 by fwahl            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -102,7 +102,7 @@ void print_ping_header(t_conf *conf)
     }
 }
 
-void    print_ip_hdr_dump(struct iphdr *ip, ssize_t nbytes)
+void    print_ip_hdr_dump(struct iphdr *ip)
 {
     uint8_t *hdr = (uint8_t *)ip;
     int     hdr_len = ip->ihl * 4;
