@@ -6,7 +6,7 @@
 /*   By: fwahl <fwahl@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/09/06 05:56:17 by fwahl             #+#    #+#             */
-/*   Updated: 2025/09/26 17:23:11 by fwahl            ###   ########.fr       */
+/*   Updated: 2025/09/26 17:35:53 by fwahl            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -384,6 +384,7 @@ void ft_ping(t_ping *ping)
 {
     uint32_t seq = 0;
     t_timing timing;
+    bool stopped_send = false;
 
     gettimeofday(&timing.start, NULL);
     gettimeofday(&timing.last_send, NULL);
@@ -392,24 +393,31 @@ void ft_ping(t_ping *ping)
 
     while (g_run)
     {
-        if (handle_timeout(&ping->conf, &timing)) // -w flag
-            break;
+        if (handle_timeout(&ping->conf, &timing))
+            break ;
 
-        if (!send_ping(ping, seq))
+        if (!stopped_send)
         {
-            if (HAS_FLAG(&ping->conf, FLAG_VERBOSE))
-                fprintf(stderr, "ping: failed to send packet\n");
+            if (!send_ping(ping, seq))
+            {
+                if (HAS_FLAG(&ping->conf, FLAG_VERBOSE))
+                    fprintf(stderr, "ping: failed to send packet\n");
+            }
+            seq++;
+
+            if (handle_count(&ping->conf, seq))
+                stopped_send = true;
         }
 
-        // Keep receiving until socket buffer is empty
         while (recv_ping(ping))
         {
-            // recv_ping will return false when no more packets available
         }
 
-        seq++;
-        if (handle_count(&ping->conf, seq)) // -c flag
-            break;
-        handle_interval(&ping->conf, &timing); // -i flag
+        if (stopped_send && (ping->stat.recv >= ping->stat.sent ||
+            handle_timeout(&ping->conf, &timing)))
+            break ;
+
+        if (!stopped_send)
+            handle_interval(&ping->conf, &timing);
     }
 }
